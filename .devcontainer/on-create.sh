@@ -13,7 +13,7 @@ docker network connect k3d k3d-registry.localhost
 
 # Create cluster
 echo "-- Create kubernetes cluster"
-k3d cluster create --config=.devcontainer/cluster.yaml
+k3d cluster create --config=.devcontainer/cluster.yml
 
 echo "-- Deploy ArgoCD"
 kubectl create namespace argocd
