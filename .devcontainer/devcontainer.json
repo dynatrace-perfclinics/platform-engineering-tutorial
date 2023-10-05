@@ -15,7 +15,7 @@
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
 
-	"onCreateCommand": "/bin/bash -c .devcontainer/on-create.sh"
+	"onCreateCommand": "chmod +x .devcontainer/on-create.sh && .devcontainer/on-create.sh"
 
 	// Use 'postCreateCommand' to run commands after the container is created.
 	// "postCreateCommand": "uname -a",
