@@ -9,7 +9,7 @@ metadata:
   namespace: argocd
 spec:
   source:
-    repoURL: 'https://github.com/agardnerit/test-template.git'
+    repoURL: 'https://github.com/dynatrace-perfclinics/platform-engineering-tutorial.git'
     targetRevision: main
     path: "gitops/manifests/dynatrace"
   destination:
