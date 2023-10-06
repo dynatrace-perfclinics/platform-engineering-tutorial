@@ -19,7 +19,7 @@ The ArgoCD platform app configuration currently points to the parent repository.
 
 In [gitops/app-of-apps.yml](gitops/app-of-apps.yml#L9), change the `repoUrl` field.
 
-Replace `'https://github.com/dynatrace-perfclinics/platform-engineering-tutorial.git` with the URL of your repository URL.
+Replace `https://github.com/dynatrace-perfclinics/platform-engineering-tutorial.git` with the URL of your repository URL.
 
 Commit those changes:
 
