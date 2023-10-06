@@ -3,6 +3,8 @@ kind: Application
 metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "2"
+  labels:
+    dt.owner: "platform_team"
   name: dynatrace
   namespace: argocd
 spec:
