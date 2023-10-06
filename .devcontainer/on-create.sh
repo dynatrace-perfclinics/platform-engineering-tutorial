@@ -10,6 +10,12 @@ chmod 700 get_helm.sh
 ./get_helm.sh
 sudo chmod +x /usr/local/bin/helm
 
+# Install sealed secrets kubeseal
+wget https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.24.1/kubeseal-0.24.1-linux-amd64.tar.gz
+tar -xf kubeseal-0.24.1-linux-amd64.tar.gz
+sudo chmod +x kubeseal
+sudo mv kubeseal /usr/local/bin
+
 # create local registry
 echo "-- Create docker network"
 docker network create k3d
