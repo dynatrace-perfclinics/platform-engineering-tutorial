@@ -10,14 +10,24 @@ A new browser tab will open and the system will begin installing.
 
 Wait for system to start.
 
+Run all commands inside the codespace browser window.
+
 A kubernetes cluster is now running and ArgoCD is installed.
 
-## Preparation: Update repoUrl
+## Preparation: Update repoURL
 The ArgoCD platform app configuration currently points to the parent repository. Change this now.
 
-In `gitops/app-of-apps.yml`, change the `repoUrl` field.
+In [gitops/app-of-apps.yml](https://github.com/dynatrace-perfclinics/platform-engineering-tutorial/blob/main/gitops/app-of-apps.yml#L9), change the `repoUrl` field.
 
 Replace `'https://github.com/dynatrace-perfclinics/platform-engineering-tutorial.git` with the URL of your repository URL.
+
+Commit those changes:
+
+```
+git add gitops/app-of-apps.yml
+git commit -m "update repoURL"
+git push
+```
 
 Any changes you make to files will now be picked up automatically by ArgoCD and synced to the cluster.
 
