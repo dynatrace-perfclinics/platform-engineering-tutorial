@@ -6,7 +6,7 @@ metadata:
 spec:
   source:
     path: gitops/applications
-    repoURL: 'https://github.com/agardnerit/test-template.git'
+    repoURL: 'https://github.com/dynatrace-perfclinics/platform-engineering-tutorial.git'
     targetRevision: main
   destination:
     namespace: argocd
