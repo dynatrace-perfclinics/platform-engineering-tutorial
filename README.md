@@ -41,28 +41,21 @@ This command will appear to hang. That is OK. Leave it running.
 
 Open a new terminal for any new commands you need to run.
 
-## Authorise the ArgoCD CLI
-
-```
-ARGOCD_PASSWORD=$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
-argocd login localhost:8080 --username=admin --password=$ARGOCD_PASSWORD --port-forward --port-forward-namespace argocd --plaintext
-```
-Go to "Ports". Find the entry for port `8080`.
-
-Hover over the URL and click the globe icon. ArgoCD should launch in a new browser tab.
-
 ## Login to Argo
 
 Switch back to the terminal window and print out the argocd password:
 
 ```
+ARGOCD_PASSWORD=$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
 echo $ARGOCD_PASSWORD
 ```
 
 Username: `admin`
 Password: `see above`
 
-Use these details to log into the Argo UI.
+Go to "Ports". Find the entry for port `8080`.
+
+Hover over the URL and click the globe icon. ArgoCD should launch in a new browser tab.
 
 ## Apply Platform App
 
@@ -71,7 +64,7 @@ The "platform" application uses the ArgoCD ["app of apps" concept](https://argo-
 This tutorial uses is to bootstrap the cluster:
 
 ```
-kubectl -n argocd apply -f gitops/app-of-apps.yaml
+kubectl -n argocd apply -f gitops/app-of-apps.yml
 ```
 
 ## Create Dynatrace Secret and install OneAgent
