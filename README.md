@@ -17,7 +17,7 @@ A kubernetes cluster is now running and ArgoCD is installed.
 ## Preparation: Update repoURL
 The ArgoCD platform app configuration currently points to the parent repository. Change this now.
 
-In [gitops/app-of-apps.yml](https://github.com/dynatrace-perfclinics/platform-engineering-tutorial/blob/main/gitops/app-of-apps.yml#L9), change the `repoUrl` field.
+In [gitops/app-of-apps.yml](gitops/app-of-apps.yml#L9), change the `repoUrl` field.
 
 Replace `'https://github.com/dynatrace-perfclinics/platform-engineering-tutorial.git` with the URL of your repository URL.
 
