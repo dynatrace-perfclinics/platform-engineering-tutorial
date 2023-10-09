@@ -11,12 +11,14 @@ curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scrip
 chmod 700 get_helm.sh
 ./get_helm.sh
 sudo chmod +x /usr/local/bin/helm
+rm get_helm.sh
 
 # Install sealed secrets kubeseal
 wget https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.24.1/kubeseal-0.24.1-linux-amd64.tar.gz
 tar -xf kubeseal-0.24.1-linux-amd64.tar.gz
 sudo chmod +x kubeseal
 sudo mv kubeseal /usr/local/bin
+rm kubeseal-0.24.1-linux-amd64.tar.gz
 # Restore overwritten files
 git restore LICENSE
 git restore README.md
