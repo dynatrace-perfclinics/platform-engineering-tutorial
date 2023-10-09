@@ -15,7 +15,7 @@ wget https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.24.1/ku
 tar -xf kubeseal-0.24.1-linux-amd64.tar.gz
 sudo chmod +x kubeseal
 sudo mv kubeseal /usr/local/bin
-# Restore overridden files
+# Restore overwritten files
 git restore LICENSE
 git restore README.md
 
