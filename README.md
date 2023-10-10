@@ -107,11 +107,44 @@ git commit -m "add oneagent + encrypted secret"
 git push
 ```
 
+## Create Dynatrace OpenTelemetry Ingest Token
+
+> Note: You need to modify the commands below. DO NOT just copy and paste.
+
+1. Note your DT tenant URL. Like `https://xyz3344.live.dynatrace.com` (no trailing slash)
+1. Go to your Dynatrace environment.
+1. Go to "Access Tokens"
+1. Generate an access token with `openTelemetry.ingest` permissions
+
+> Note: `history -d $(history 1)` is used for security. It removes the value from history file.
+
+Set the Dynatrace URL:
+
+```
+DT_TENANT=YOURURLHERE; history -d $(history 1)
+```
+
+Now set the OpenTelemetry access token value:
+
+```
+DT_INGEST_TOKEN=YOURAPITOKENVALUEHERE; history -d $(history 1)
+```
+
+Encrypt the values and commit the secret to Git:
+```
+kubectl -n opentelemetry create secret generic dt-details --dry-run=client --from-literal=DT_URL=$DT_TENANT --from-literal=DT_OTEL_TRACE_INGEST_TOKEN=$DT_INGEST_TOKEN -o yaml | kubeseal -o yaml > gitops/manifests/opentelemetry/dynatrace-opentelemetry-ingest-secret.yml
+git add gitops/manifests/opentelemetryt
+git commit -m "add dt url and opentelemetry token to encrypted secret"
+git push
+```
+
 ## Recap
 
-By now, you should see 3 applications in ArgoCD:
+By now, you should see 5 applications in ArgoCD:
 - platform (deployed in wave 1)
 - sealed-secrets (deployed in wave 1)
+- opentelemetry-collector (deployed in wave 1)
 - dynatrace (deployed in wave 2)
+- opentelemetry (deployed in wave 2)
 
 The OneAgent should connect to your DT environment and be visible within a few moments.
