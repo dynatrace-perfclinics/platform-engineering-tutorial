@@ -20,7 +20,7 @@ spec:
               secretKeyRef:
                 name: dt-details
                 key: DT_URL
-          - name: DT_API_TOKEN
+          - name: DT_OTEL_TRACE_INGEST_TOKEN
             valueFrom:
               secretKeyRef:
                 name: dt-details
@@ -42,7 +42,7 @@ spec:
             otlphttp:
               endpoint: "$DT_URL/api/v2/otlp"
               headers:
-                Authorization: "Api-Token $DT_API_TOKEN"
+                Authorization: "Api-Token $DT_OTEL_TRACE_INGEST_TOKEN"
           service:
             pipelines:
               traces:
