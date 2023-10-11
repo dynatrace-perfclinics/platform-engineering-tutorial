@@ -39,7 +39,7 @@ kubectl create namespace argocd
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 
 echo "-- Configuring ArgoCD for no TLS"
-kubectl -n argocd apply -f .devcontainer/argocd-no-tls.yml
+kubectl -n argocd apply -f .devcontainer/argocd-cm.yml
 
 echo "-- Restarting ArgoCD server to pick up TLS changes"
 kubectl -n argocd scale deploy/argocd-server --replicas=0
