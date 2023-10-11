@@ -34,6 +34,9 @@ docker network connect k3d k3d-registry.localhost
 echo "-- Create kubernetes cluster"
 k3d cluster create --config=.devcontainer/cluster.yml
 
+# TODO: Improve
+# Investigate use of ArgoCD Autopilot to bootstrap cluster
+# https://argocd-autopilot.readthedocs.io/en/stable/
 echo "-- Deploy ArgoCD"
 kubectl create namespace argocd
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
