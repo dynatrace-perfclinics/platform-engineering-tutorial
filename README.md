@@ -144,7 +144,8 @@ By now, you should see 5 applications in ArgoCD:
 - platform (deployed in wave 1)
 - sealed-secrets (deployed in wave 1)
 - opentelemetry-collector (deployed in wave 1)
-- dynatrace (deployed in wave 2)
 - opentelemetry (deployed in wave 2)
+- dynatrace (deployed in wave 2)
+- webhook.site (deployed in wave 2)
 
 The OneAgent should connect to your DT environment and be visible within a few moments.
