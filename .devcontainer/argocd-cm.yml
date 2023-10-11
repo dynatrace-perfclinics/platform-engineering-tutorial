@@ -8,3 +8,4 @@ metadata:
   namespace: argocd
 data:
   server.insecure: "true"
+  otlp.address: "otel-collector.opentelemetry.svc.cluster.local:4317"
