@@ -4,16 +4,6 @@
 
 Click "Use this template" to create a new repo in your account.
 
-In your repository, click "Code" then "Codespaces" then "Create codespace on main".
-
-A new browser tab will open and the system will begin installing.
-
-Wait for system to start.
-
-Run all commands inside the codespace browser window.
-
-A kubernetes cluster is now running and ArgoCD is installed.
-
 ## i) Preparation: Install tools on your local machine
 
 These tools should be installed on the machine you will use to interact with the cluster:
@@ -77,6 +67,28 @@ git push
 
 Any changes you make to files will now be picked up automatically by ArgoCD and synced to the cluster.
 
+
+> You should have access to an empty kubernetes cluster.
+> Make sure you can `kubectl get namespaces` successfully before proceeding.
+
+## 1) Install and configure ArgoCD on the 
+
+```
+# Install Argo
+# TODO: Improve
+# Investigate use of ArgoCD Autopilot to bootstrap cluster
+# https://argocd-autopilot.readthedocs.io/en/stable/
+kubectl create namespace argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+# Configuring ArgoCD for access without TLS
+# and preconfigure Argo traces to go to the collector
+# OTEL collector will be deployed later
+kubectl -n argocd apply -f .devcontainer/argocd-cm.yml
+```
+
+`kubectl get ns` should show a new namespace called `argocd`
+
 ## 1) Port forward to access argocd
 
 ```
@@ -99,9 +111,9 @@ echo $ARGOCD_PASSWORD
 Username: `admin`
 Password: `see above`
 
-Go to "Ports". Find the entry for port `8080`.
+Go to `http://localhost:8080` and log in to Argo.
 
-Hover over the URL and click the globe icon. ArgoCD should launch in a new browser tab.
+The UI should show "No Applications".
 
 ## 3) Apply Platform App
 
@@ -113,7 +125,9 @@ This tutorial uses is to bootstrap the cluster:
 kubectl -n argocd apply -f gitops/app-of-apps.yml
 ```
 
-## 4) Create Dynatrace Secret and install OneAgent
+## 4) Create Dynatrace Secret to Activate the OneAgent
+
+The OneAgent operator is deployed on the cluster in the step above. However it doesn't have your DT tenant details.
 
 > Note: You need to modify the commands below. DO NOT just copy and paste.
 
@@ -141,6 +155,10 @@ DT_INGEST_TOKEN=YOURTOKENVALUEHERE; history -d $(history 1)
 
 You can copy and paste the command below as-is.
 
+The secret is encrypted using a key on the cluster thus can only be decrypted by the operator on the cluster. Therefore the encrypted `SealedSecret` resource YAML is **safe to commit to Git**.
+
+When the `SealedSecret` is deployed on the cluster, the `SealedSecret` operator will decrypt it and create a regular `kind: Secret` on the cluster.
+
 Encrypt the values and commit the secret to Git:
 ```
 sed -i "s#https://abc12345.live.dynatrace.com#$DT_TENANT#g" gitops/manifests/dynatrace/dynatrace.yml
@@ -151,6 +169,8 @@ git push
 ```
 
 ## 5) Create Dynatrace OpenTelemetry Ingest Token
+
+An OpenTelemetry collector is deployed but does not have the DT endpoint details. Using the same method as above, create those details now.
 
 > Note: You need to modify the commands below. DO NOT just copy and paste.
 
