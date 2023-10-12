@@ -192,3 +192,22 @@ By now, you should see 5 applications in ArgoCD:
 - webhook.site (deployed in wave 2)
 
 The OneAgent should connect to your DT environment and be visible within a few moments.
+
+
+##########################
+
+### Additional Info to be sorted
+
+#### Webhook.site
+
+Webhook.site is an on-cluster UI which allows us to `curl POST` payloads and it'll show in the UI.
+It is available in the `webhook` namespace on port `8084`.
+
+The first time you load the URI, it generates a UUID. You use that to interact with the endpoint.
+
+However, we can precreate the endpoint (we could do this on cluster creation) so we know (and can GitOps preconfigure) the endpoints.
+
+[See here for how to do this](https://github.com/webhooksite/webhook.site/issues/151).
+
+
+
