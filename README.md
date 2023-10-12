@@ -194,7 +194,7 @@ By now, you should see 5 applications in ArgoCD:
 The OneAgent should connect to your DT environment and be visible within a few moments.
 
 
-##########################
+-----------------------------------------
 
 ### Additional Info to be sorted
 
