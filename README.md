@@ -14,7 +14,48 @@ Run all commands inside the codespace browser window.
 
 A kubernetes cluster is now running and ArgoCD is installed.
 
-## Preparation: Update repoURL
+## i) Preparation: Install tools on your local machine
+
+These tools should be installed on the machine you will use to interact with the cluster:
+
+```
+###########
+# Install kubectl
+# This is used to interact with your cluster
+###########
+curl -LO https://dl.k8s.io/release/v1.27.4/bin/linux/amd64/kubectl
+sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+# remove copy in ~
+rm kubectl
+
+################
+# Install helm
+# This is used once to install Argo
+# TODO: Investigate use of ArgoCD Autopilot
+# So that everything (inc. Argo install can live in Git)
+# https://argocd-autopilot.readthedocs.io/en/stable/
+################
+curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+chmod 700 get_helm.sh
+./get_helm.sh
+sudo chmod +x /usr/local/bin/helm
+rm get_helm.sh
+
+#################
+# Install sealed secrets kubeseal
+# This is necessary to encrypt the Kubernetes Secret values
+#################
+wget https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.24.1/kubeseal-0.24.1-linux-amd64.tar.gz
+tar -xf kubeseal-0.24.1-linux-amd64.tar.gz
+sudo chmod +x kubeseal
+sudo mv kubeseal /usr/local/bin
+rm kubeseal-0.24.1-linux-amd64.tar.gz
+# Restore overwritten files
+git restore LICENSE
+git restore README.md
+```
+
+## ii) Preparation: Update repoURL
 The ArgoCD platform app configuration currently points to the parent repository. Change this now.
 
 In the following files, change the `repoUrl` field:
@@ -36,7 +77,7 @@ git push
 
 Any changes you make to files will now be picked up automatically by ArgoCD and synced to the cluster.
 
-## Port forward to access argocd
+## 1) Port forward to access argocd
 
 ```
 kubectl -n argocd port-forward svc/argocd-server 8080:80
@@ -46,7 +87,7 @@ This command will appear to hang. That is OK. Leave it running.
 
 Open a new terminal for any new commands you need to run.
 
-## Login to Argo
+## 2) Login to Argo
 
 Switch back to the terminal window and print out the argocd password:
 
@@ -62,7 +103,7 @@ Go to "Ports". Find the entry for port `8080`.
 
 Hover over the URL and click the globe icon. ArgoCD should launch in a new browser tab.
 
-## Apply Platform App
+## 3) Apply Platform App
 
 The "platform" application uses the ArgoCD ["app of apps" concept](https://argo-cd.readthedocs.io/en/stable/operator-manual/cluster-bootstrapping/) to install many applications inside one "parent" app.
 
@@ -72,7 +113,7 @@ This tutorial uses is to bootstrap the cluster:
 kubectl -n argocd apply -f gitops/app-of-apps.yml
 ```
 
-## Create Dynatrace Secret and install OneAgent
+## 4) Create Dynatrace Secret and install OneAgent
 
 > Note: You need to modify the commands below. DO NOT just copy and paste.
 
@@ -109,7 +150,7 @@ git commit -m "add oneagent + encrypted secret"
 git push
 ```
 
-## Create Dynatrace OpenTelemetry Ingest Token
+## 5) Create Dynatrace OpenTelemetry Ingest Token
 
 > Note: You need to modify the commands below. DO NOT just copy and paste.
 
