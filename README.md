@@ -104,7 +104,7 @@ Encrypt the values and commit the secret to Git:
 ```
 sed -i "s#https://abc12345.live.dynatrace.com#$DT_TENANT#g" gitops/manifests/dynatrace/dynatrace.yml
 kubectl -n dynatrace create secret generic hot-day-platform-engineering --dry-run=client --from-literal=apiToken=$DT_OP_TOKEN --from-literal=dataIngestToken=$DT_INGEST_TOKEN -o yaml | kubeseal -o yaml > gitops/manifests/dynatrace/dynakubesecret.yml
-git add gitops/manifests/dynatrace
+git add gitops/manifests/dynatrace/*
 git commit -m "add oneagent + encrypted secret"
 git push
 ```
