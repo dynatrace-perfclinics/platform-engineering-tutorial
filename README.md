@@ -198,6 +198,12 @@ The OneAgent should connect to your DT environment and be visible within a few m
 
 ### Additional Info to be sorted
 
+### ArgoCD Traces
+
+Argo is configured (when you `kubectl apply` [.devcontainer/argocd-cm.ym](.devcontainer/argocd-cm.yml) to send OpenTelemetry traces to the OTEL collector.
+
+[The collector is configured](gitops/applications/opentelemetry-collector-contrib.yml#L33-#L45) to send traces to DT.
+
 #### Webhook.site
 
 Webhook.site is an on-cluster UI which allows us to `curl POST` payloads and it'll show in the UI.
@@ -209,5 +215,8 @@ However, we can precreate the endpoint (we could do this on cluster creation) so
 
 [See here for how to do this](https://github.com/webhooksite/webhook.site/issues/151).
 
+#### Triggering Monaco
 
+We could use [Argo Hooks](https://argo-cd.readthedocs.io/en/stable/user-guide/resource_hooks/#usage) to trigger a `Job` or workflow when the initial deployment is done.
 
+For example, when the `dynatrace` application is synced and healthy, we use the `PostSync` hook to trigger a `curlimage/curl` Job which triggers a DT workflow to trigger Monaco.
