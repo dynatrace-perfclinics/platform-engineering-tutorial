@@ -21,6 +21,8 @@ In the following files, change the `repoUrl` field:
 
 - [gitops/app-of-apps.yml](gitops/app-of-apps.yml#L12)
 - [gitops/applications/dynatrace.yml](gitops/applications/dynatrace.yml#L12)
+- [gitops/applications/opentelemetry.yml](gitops/applications/opentelemetry.yml#L12)
+- [gitops/applications/webhook.site.yml](gitops/applications/webhook.site.yml#L12)
 
 Replace `https://github.com/dynatrace-perfclinics/platform-engineering-tutorial.git` with the URL of your repository URL.
 
