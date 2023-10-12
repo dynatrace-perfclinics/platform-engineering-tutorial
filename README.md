@@ -135,7 +135,7 @@ DT_INGEST_TOKEN=YOURAPITOKENVALUEHERE; history -d $(history 1)
 Encrypt the values and commit the secret to Git:
 ```
 kubectl -n opentelemetry create secret generic dt-details --dry-run=client --from-literal=DT_URL=$DT_TENANT --from-literal=DT_OTEL_TRACE_INGEST_TOKEN=$DT_INGEST_TOKEN -o yaml | kubeseal -o yaml > gitops/manifests/opentelemetry/dynatrace-opentelemetry-ingest-secret.yml
-git add gitops/manifests/opentelemetryt
+git add gitops/manifests/opentelemetry/*
 git commit -m "add dt url and opentelemetry token to encrypted secret"
 git push
 ```
