@@ -1,0 +1,63 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+  labels:
+    dt.owner: "platform_team"
+  name: gitlab
+  namespace: argocd
+spec:
+  source:
+    repoURL: 'https://charts.gitlab.io'
+    targetRevision: 7.4.1
+    chart: gitlab
+    helm:
+      values: |
+        certmanager-issuer:
+            email: "dthotday@example.com"
+        upgradeCheck:
+          enabled: false
+        global:
+          edition: "ce"
+          # the "tracing" section is just a guess
+          # I do not think it works
+          # Apparently gitlab only supports OpenTracing
+          # https://docs.gitlab.com/charts/charts/globals.html#tracing
+          tracing:
+            connection:
+              string: "http://otel-collector.opentelemetry.svc.cluster.local:4318"
+              urlTemplate: "https://example.com/foo/{{ service }}/{{ correlation_id  }}"
+          hosts:
+            domain: example.com
+            kas:
+              resources.requests.cpu: 1m
+              resources.requests.memory: 1M
+              minReplicas: 1
+            nginx-ingress:
+              enabled: false
+  destination:
+    namespace: gitlab
+    server: 'https://kubernetes.default.svc'
+  project: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        maxDuration: 3m0s
+        factor: 2
+    syncOptions:
+      - CreateNamespace=true
+
+# helm repo add gitlab https://charts.gitlab.io/
+# helm repo update
+# helm upgrade --install gitlab gitlab/gitlab \
+#   --timeout 600s \
+#   --set global.hosts.domain=example.com \
+#   --set global.hosts.externalIP=10.10.10.10 \
+#   --set certmanager-issuer.email=me@example.com \
+#   --set postgresql.image.tag=13.6.0
