@@ -71,7 +71,16 @@ Any changes you make to files will now be picked up automatically by ArgoCD and 
 > You should have access to an empty kubernetes cluster.
 > Make sure you can `kubectl get namespaces` successfully before proceeding.
 
-## 1) Install and configure ArgoCD on the 
+## 1) Install Sealed Secrets on Cluster
+
+The Sealed Secrets operator needs to be present on the cluster before we proceed.
+
+```
+helm repo add sealed-secrets https://bitnami-labs.github.io/sealed-secrets
+helm install sealed-secrets -n kube-system --set-string fullnameOverride=sealed-secrets-controller sealed-secrets/sealed-secrets --wait
+```
+
+## 1) Install and configure ArgoCD on Cluster
 
 ```
 # Install Argo
@@ -205,11 +214,11 @@ git push
 
 By now, you should see 5 applications in ArgoCD:
 - platform (deployed in wave 1)
-- sealed-secrets (deployed in wave 1)
 - opentelemetry-collector (deployed in wave 1)
 - opentelemetry (deployed in wave 2)
 - dynatrace (deployed in wave 2)
 - webhook.site (deployed in wave 2)
+- gitlab
 
 The OneAgent should connect to your DT environment and be visible within a few moments.
 
