@@ -131,7 +131,7 @@ The platform relies on common tooling, so deploy this in "layer 1" first:
 kubectl apply -f gitops/layer1apps.yml
 ```
 
-Wait until the "layer1" application is green before proceeding.
+Wait until both the "layer1" and "sealed-secrets" applications are green before proceeding.
 
 ## 6) Create Dynatrace Secret to Activate the OneAgent
 
