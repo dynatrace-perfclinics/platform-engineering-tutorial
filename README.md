@@ -61,6 +61,7 @@ Replace `https://github.com/dynatrace-perfclinics/platform-engineering-tutorial.
 Commit those changes:
 
 ```
+git add gitops/layer1apps.yml
 git add gitops/layer2apps.yml
 git add gitops/applications/layer2/*
 git commit -m "update repoURL"
