@@ -226,6 +226,7 @@ By now, you should see 5 applications in ArgoCD:
 | App Name| Layer | Wave | Description|
 |----------|--------|--------|---------|
 | sealed-secrets | 1 | 1 | Encrypts secret values to enable GitOps with secrets |
+| nginx-ingress | 1 | 2 | Provides cluster ingress |
 | platform | 2 | 1 | The logical "wrapper" app which contains the other platform applications |
 | dynatrace | 2 | 1 | Deploys DT components |
 | opentelemetry-collector | 2 | 2 | Deploys an OpenTelemetry collector preconfigured to send data to DT |
