@@ -50,6 +50,7 @@ The ArgoCD platform app configuration currently points to the parent repository.
 
 In the following files, change the `repoUrl` field:
 
+- [gitops/layer1apps.yml](gitops/layer1apps.yml#L12)
 - [gitops/layer2apps.yml](gitops/layer2apps.yml#L12)
 - [gitops/applications/layer2/dynatrace.yml](gitops/applications/layer2/dynatrace.yml#L12)
 - [gitops/applications/layer2/opentelemetry.yml](gitops/applications/layer2/opentelemetry.yml#L12)
