@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   annotations:
-    argocd.argoproj.io/sync-wave: "2"
+    argocd.argoproj.io/sync-wave: "3"
   labels:
     dt.owner: "platform_team"
   name: opentelemetry
@@ -11,7 +11,7 @@ spec:
   source:
     repoURL: 'https://github.com/dynatrace-perfclinics/platform-engineering-tutorial.git'
     targetRevision: main
-    path: "gitops/manifests/opentelemetry"
+    path: "gitops/manifests/layer2/opentelemetry"
   destination:
     namespace: opentelemetry
     server: 'https://kubernetes.default.svc'

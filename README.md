@@ -50,17 +50,18 @@ The ArgoCD platform app configuration currently points to the parent repository.
 
 In the following files, change the `repoUrl` field:
 
-- [gitops/app-of-apps.yml](gitops/app-of-apps.yml#L12)
-- [gitops/applications/dynatrace.yml](gitops/applications/dynatrace.yml#L12)
-- [gitops/applications/opentelemetry.yml](gitops/applications/opentelemetry.yml#L12)
-- [gitops/applications/webhook.site.yml](gitops/applications/webhook.site.yml#L12)
+- [gitops/layer2apps.yml](gitops/layer2apps.yml#L12)
+- [gitops/applications/layer2/dynatrace.yml](gitops/applications/layer2/dynatrace.yml#L12)
+- [gitops/applications/layer2/opentelemetry.yml](gitops/applications/layer2/opentelemetry.yml#L12)
+- [gitops/applications/layer2/webhook.site.yml](gitops/applications/layer2/webhook.site.yml#L12)
 
 Replace `https://github.com/dynatrace-perfclinics/platform-engineering-tutorial.git` with the URL of your repository URL.
 
 Commit those changes:
 
 ```
-git add gitops/app-of-apps.yml
+git add gitops/layer2apps.yml
+git add gitops/applications/layer2/*
 git commit -m "update repoURL"
 git push
 ```
@@ -71,16 +72,7 @@ Any changes you make to files will now be picked up automatically by ArgoCD and 
 > You should have access to an empty kubernetes cluster.
 > Make sure you can `kubectl get namespaces` successfully before proceeding.
 
-## 1) Install Sealed Secrets on Cluster
-
-The Sealed Secrets operator needs to be present on the cluster before we proceed.
-
-```
-helm repo add sealed-secrets https://bitnami-labs.github.io/sealed-secrets
-helm install sealed-secrets -n kube-system --set-string fullnameOverride=sealed-secrets-controller sealed-secrets/sealed-secrets --wait
-```
-
-## 1) Install and configure ArgoCD on Cluster
+## 2) Install and configure ArgoCD on Cluster
 
 ```
 # Install Argo
@@ -94,11 +86,16 @@ kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/st
 # and preconfigure Argo traces to go to the collector
 # OTEL collector will be deployed later
 kubectl -n argocd apply -f .devcontainer/argocd-cm.yml
+
+# Restart ArgoCD to pick up the new value from the ConfigMap above
+kubectl -n argocd scale deploy/argocd-server --replicas=0
+kubectl -n argocd scale deploy/argocd-server --replicas=1
+kubectl -n argocd rollout status deploy/argocd-server --timeout=300s
 ```
 
 `kubectl get ns` should show a new namespace called `argocd`
 
-## 1) Port forward to access argocd
+## 3) Port forward to access argocd
 
 ```
 kubectl -n argocd port-forward svc/argocd-server 8080:80
@@ -108,7 +105,7 @@ This command will appear to hang. That is OK. Leave it running.
 
 Open a new terminal for any new commands you need to run.
 
-## 2) Login to Argo
+## 4) Login to Argo
 
 Switch back to the terminal window and print out the argocd password:
 
@@ -124,19 +121,19 @@ Go to `http://localhost:8080` and log in to Argo.
 
 The UI should show "No Applications".
 
-## 3) Apply Platform App
+## 5) Apply Layer 1 Apps
 
-The "platform" application uses the ArgoCD ["app of apps" concept](https://argo-cd.readthedocs.io/en/stable/operator-manual/cluster-bootstrapping/) to install many applications inside one "parent" app.
-
-This tutorial uses is to bootstrap the cluster:
+The platform relies on common tooling, so deploy this in "layer 1" first:
 
 ```
-kubectl -n argocd apply -f gitops/app-of-apps.yml
+kubectl apply -f gitops/layer1apps.yml
 ```
 
-## 4) Create Dynatrace Secret to Activate the OneAgent
+Wait until the "layer1" application is green before proceeding.
 
-The OneAgent operator is deployed on the cluster in the step above. However it doesn't have your DT tenant details.
+## 6) Create Dynatrace Secret to Activate the OneAgent
+
+The OneAgent operator will be deployed onto the cluster, but it needs to know where to send data. It needs your DT tenant details.
 
 > Note: You need to modify the commands below. DO NOT just copy and paste.
 
@@ -170,14 +167,14 @@ When the `SealedSecret` is deployed on the cluster, the `SealedSecret` operator 
 
 Encrypt the values and commit the secret to Git:
 ```
-sed -i "s#https://abc12345.live.dynatrace.com#$DT_TENANT#g" gitops/manifests/dynatrace/dynatrace.yml
-kubectl -n dynatrace create secret generic hot-day-platform-engineering --dry-run=client --from-literal=apiToken=$DT_OP_TOKEN --from-literal=dataIngestToken=$DT_INGEST_TOKEN -o yaml | kubeseal -o yaml > gitops/manifests/dynatrace/dynakubesecret.yml
-git add gitops/manifests/dynatrace/*
+sed -i "s#https://abc12345.live.dynatrace.com#$DT_TENANT#g" gitops/manifests/layer2/dynatrace/dynatrace.yml
+kubectl -n dynatrace create secret generic hot-day-platform-engineering --dry-run=client --from-literal=apiToken=$DT_OP_TOKEN --from-literal=dataIngestToken=$DT_INGEST_TOKEN -o yaml | kubeseal -o yaml > gitops/manifests/layer2/dynatrace/dynakubesecret.yml
+git add gitops/manifests/layer2/dynatrace/*
 git commit -m "add oneagent + encrypted secret"
 git push
 ```
 
-## 5) Create Dynatrace OpenTelemetry Ingest Token
+## 7) Create Dynatrace OpenTelemetry Ingest Token
 
 An OpenTelemetry collector is deployed but does not have the DT endpoint details. Using the same method as above, create those details now.
 
@@ -204,24 +201,37 @@ DT_INGEST_TOKEN=YOURAPITOKENVALUEHERE; history -d $(history 1)
 
 Encrypt the values and commit the secret to Git:
 ```
-kubectl -n opentelemetry create secret generic dt-details --dry-run=client --from-literal=DT_URL=$DT_TENANT --from-literal=DT_OTEL_TRACE_INGEST_TOKEN=$DT_INGEST_TOKEN -o yaml | kubeseal -o yaml > gitops/manifests/opentelemetry/dynatrace-opentelemetry-ingest-secret.yml
-git add gitops/manifests/opentelemetry/*
+kubectl -n opentelemetry create secret generic dt-details --dry-run=client --from-literal=DT_URL=$DT_TENANT --from-literal=DT_OTEL_TRACE_INGEST_TOKEN=$DT_INGEST_TOKEN -o yaml | kubeseal -o yaml > gitops/manifests/layer2/opentelemetry/dynatrace-opentelemetry-ingest-secret.yml
+git add gitops/manifests/layer2/opentelemetry/*
 git commit -m "add dt url and opentelemetry token to encrypted secret"
 git push
+```
+
+## 8) Apply Layer 2 Apps
+
+The "platform" application uses the ArgoCD ["app of apps" concept](https://argo-cd.readthedocs.io/en/stable/operator-manual/cluster-bootstrapping/) to install many applications inside one "parent" app.
+
+This tutorial uses is to bootstrap the cluster:
+
+```
+kubectl -n argocd apply -f gitops/layer2apps.yml
 ```
 
 ## Recap
 
 By now, you should see 5 applications in ArgoCD:
-- platform (deployed in wave 1)
-- opentelemetry-collector (deployed in wave 1)
-- opentelemetry (deployed in wave 2)
-- dynatrace (deployed in wave 2)
-- webhook.site (deployed in wave 2)
-- gitlab
+
+| App Name| Layer | Wave | Description|
+|----------|--------|--------|---------|
+| sealed-secrets | 1 | 1 | Encrypts secret values to enable GitOps with secrets |
+| platform | 2 | 1 | The logical "wrapper" app which contains the other platform applications |
+| dynatrace | 2 | 1 | Deploys DT components |
+| opentelemetry-collector | 2 | 2 | Deploys an OpenTelemetry collector preconfigured to send data to DT |
+| webhook.site | 2 | 2 | Demo endpoint system to accept and visualise HTTP requests |
+| opentelemetry | 2 | 3 | Configuration for the OpenTelemetry collector |
+
 
 The OneAgent should connect to your DT environment and be visible within a few moments.
-
 
 -----------------------------------------
 

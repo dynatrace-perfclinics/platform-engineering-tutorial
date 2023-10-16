@@ -5,15 +5,15 @@ metadata:
     argocd.argoproj.io/sync-wave: "2"
   labels:
     dt.owner: "platform_team"
-  name: dynatrace
+  name: webhook.site
   namespace: argocd
 spec:
   source:
     repoURL: 'https://github.com/dynatrace-perfclinics/platform-engineering-tutorial.git'
     targetRevision: main
-    path: "gitops/manifests/dynatrace"
+    path: "gitops/manifests/layer2/webhook.site"
   destination:
-    namespace: dynatrace
+    namespace: webhook
     server: 'https://kubernetes.default.svc'
   project: default
   syncPolicy:
@@ -26,5 +26,3 @@ spec:
         duration: 5s
         maxDuration: 3m0s
         factor: 2
-    syncOptions:
-      - CreateNamespace=true
