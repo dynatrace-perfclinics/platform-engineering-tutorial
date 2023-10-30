@@ -50,7 +50,6 @@ The ArgoCD platform app configuration currently points to the parent repository.
 
 In the following files, change the `repoUrl` field:
 
-- [gitops/layer1apps.yml](gitops/layer1apps.yml#L12)
 - [gitops/layer2apps.yml](gitops/layer2apps.yml#L12)
 - [gitops/applications/layer2/dynatrace.yml](gitops/applications/layer2/dynatrace.yml#L12)
 - [gitops/applications/layer2/opentelemetry.yml](gitops/applications/layer2/opentelemetry.yml#L12)
@@ -61,7 +60,6 @@ Replace `https://github.com/dynatrace-perfclinics/platform-engineering-tutorial.
 Commit those changes:
 
 ```
-git add gitops/layer1apps.yml
 git add gitops/layer2apps.yml
 git add gitops/applications/layer2/*
 git commit -m "update repoURL"
@@ -73,6 +71,18 @@ Any changes you make to files will now be picked up automatically by ArgoCD and 
 
 > You should have access to an empty kubernetes cluster.
 > Make sure you can `kubectl get namespaces` successfully before proceeding.
+
+## iii) Preparation: Create oAuth Client
+
+[Follow steps 1 to 3 to create an OAuth Client](https://www.dynatrace.com/support/help/platform-modules/business-analytics/ba-api-ingest#oauth-client)
+
+You should now have 3 pieces of information:
+
+1. `oAuth Client ID`: `dt0s02.1234ABCD`
+2. `oAuth Client Secret`: `dt0s02.1234ABCD.*********`
+3. `DT Account URN`: urn:dtaccount:********-****-****-****-************`
+
+These details will be used to send Dynatrace bizevents for different applications in various namespaces.
 
 ## 2) Install and configure ArgoCD on Cluster
 
@@ -131,7 +141,43 @@ The platform relies on common tooling, so deploy this in "layer 1" first:
 kubectl apply -f gitops/layer1apps.yml
 ```
 
-Wait until both the "layer1" and "sealed-secrets" applications are green before proceeding.
+Wait until the "layer1" application is green before proceeding.
+
+## 7) Create Business Events Secrets
+
+Since secrets are namespace specific, we need to create an identical secret in each namespaces from which we wish to emit bizevents.
+
+> Note: `history -d $(history 1)` is used for security. It removes the value from history file.
+
+You MUST modify the snippet below. Do not just copy and paste:
+```
+DT_TENANT=YOURURLHERE; history -d $(history 1)
+```
+
+Now set your oAuth client ID:
+```
+DT_OAUTH_CLIENT_ID=YOUROAUTHCLIENTID; history -d $(history 1)
+```
+
+Now set your oAuth client secret:
+```
+DT_OAUTH_CLIENT_SECRET=YOUROAUTHCLIENTSECRET; history -d $(history 1)
+```
+
+Now set your account URN:
+```
+DT_ACCOUNT_URN=urn:dtaccount:********; history -d $(history 1)
+```
+
+Now create the secrets in each namespace. You can copy and paste this as-is:
+```
+kubectl -n default create secret generic dt-bizevent-oauth-details --from-literal=dtTenant=$DT_TENANT --from-literal=oAuthClientID=$DT_OAUTH_CLIENT_ID --from-literal=oAuthClientSecret=$DT_OAUTH_CLIENT_SECRET --from-literal=accountURN=$DT_ACCOUNT_URN
+kubectl -n keptndemo create secret generic dt-bizevent-oauth-details --from-literal=dtTenant=$DT_TENANT --from-literal=oAuthClientID=$DT_OAUTH_CLIENT_ID --from-literal=oAuthClientSecret=$DT_OAUTH_CLIENT_SECRET --from-literal=accountURN=$DT_ACCOUNT_URN
+kubectl -n dynatrace create secret generic dt-bizevent-oauth-details --from-literal=dtTenant=$DT_TENANT --from-literal=oAuthClientID=$DT_OAUTH_CLIENT_ID --from-literal=oAuthClientSecret=$DT_OAUTH_CLIENT_SECRET --from-literal=accountURN=$DT_ACCOUNT_URN
+kubectl -n opentelemetry create secret generic dt-bizevent-oauth-details 
+--from-literal=dtTenant=$DT_TENANT --from-literal=oAuthClientID=$DT_OAUTH_CLIENT_ID --from-literal=oAuthClientSecret=$DT_OAUTH_CLIENT_SECRET --from-literal=accountURN=$DT_ACCOUNT_URN
+kubectl -n webhook create secret generic dt-bizevent-oauth-details --from-literal=dtTenant=$DT_TENANT --from-literal=oAuthClientID=$DT_OAUTH_CLIENT_ID --from-literal=oAuthClientSecret=$DT_OAUTH_CLIENT_SECRET --from-literal=accountURN=$DT_ACCOUNT_URN
+```
 
 ## 6) Create Dynatrace Secret to Activate the OneAgent
 
@@ -163,16 +209,11 @@ DT_INGEST_TOKEN=YOURTOKENVALUEHERE; history -d $(history 1)
 
 You can copy and paste the command below as-is.
 
-The secret is encrypted using a key on the cluster thus can only be decrypted by the operator on the cluster. Therefore the encrypted `SealedSecret` resource YAML is **safe to commit to Git**.
-
-When the `SealedSecret` is deployed on the cluster, the `SealedSecret` operator will decrypt it and create a regular `kind: Secret` on the cluster.
-
-Encrypt the values and commit the secret to Git:
 ```
 sed -i "s#https://abc12345.live.dynatrace.com#$DT_TENANT#g" gitops/manifests/layer2/dynatrace/dynatrace.yml
-kubectl -n dynatrace create secret generic hot-day-platform-engineering --dry-run=client --from-literal=apiToken=$DT_OP_TOKEN --from-literal=dataIngestToken=$DT_INGEST_TOKEN -o yaml | kubeseal -o yaml > gitops/manifests/layer2/dynatrace/dynakubesecret.yml
-git add gitops/manifests/layer2/dynatrace/*
-git commit -m "add oneagent + encrypted secret"
+kubectl -n dynatrace create secret generic hot-day-platform-engineering --from-literal=apiToken=$DT_OP_TOKEN --from-literal=dataIngestToken=$DT_INGEST_TOKEN
+git add gitops/manifests/layer2/dynatrace/dynatrace.yml
+git commit -m "add oneagent config"
 git push
 ```
 
@@ -201,12 +242,9 @@ Now set the OpenTelemetry access token value:
 DT_INGEST_TOKEN=YOURAPITOKENVALUEHERE; history -d $(history 1)
 ```
 
-Encrypt the values and commit the secret to Git:
+Create the secret:
 ```
-kubectl -n opentelemetry create secret generic dt-details --dry-run=client --from-literal=DT_URL=$DT_TENANT --from-literal=DT_OTEL_TRACE_INGEST_TOKEN=$DT_INGEST_TOKEN -o yaml | kubeseal -o yaml > gitops/manifests/layer2/opentelemetry/dynatrace-opentelemetry-ingest-secret.yml
-git add gitops/manifests/layer2/opentelemetry/*
-git commit -m "add dt url and opentelemetry token to encrypted secret"
-git push
+kubectl -n opentelemetry create secret generic dt-details --from-literal=DT_URL=$DT_TENANT --from-literal=DT_OTEL_TRACE_INGEST_TOKEN=$DT_INGEST_TOKEN
 ```
 
 ## 8) Apply Layer 2 Apps
@@ -219,6 +257,14 @@ This tutorial uses is to bootstrap the cluster:
 kubectl -n argocd apply -f gitops/layer2apps.yml
 ```
 
+## 9) Apply Layer 3 Apps
+
+Now deploy the demo application:
+
+```
+kubectl -n argocd apply -f gitops/layer3apps.yml
+```
+
 ## Recap
 
 By now, you should see 5 applications in ArgoCD:
@@ -226,7 +272,6 @@ By now, you should see 5 applications in ArgoCD:
 | App Name| Layer | Wave | Description|
 |----------|--------|--------|---------|
 | sealed-secrets | 1 | 1 | Encrypts secret values to enable GitOps with secrets |
-| nginx-ingress | 1 | 2 | Provides cluster ingress |
 | platform | 2 | 1 | The logical "wrapper" app which contains the other platform applications |
 | dynatrace | 2 | 1 | Deploys DT components |
 | opentelemetry-collector | 2 | 2 | Deploys an OpenTelemetry collector preconfigured to send data to DT |
