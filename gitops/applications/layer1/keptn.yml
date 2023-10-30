@@ -1,0 +1,33 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "4"
+  labels:
+    dt.owner: "platform_team"
+  name: keptn
+  namespace: argocd
+spec:
+  sources:
+    - repoURL: 'https://charts.lifecycle.keptn.sh'
+      targetRevision: 0.2.6
+      chart: klt
+    - repoURL: 'https://github.com/dynatrace-perfclinics/platform-engineering-tutorial.git'
+      targetRevision: main
+      path: "gitops/manifests/layer1/keptn"
+  destination:
+    namespace: keptn
+    server: 'https://kubernetes.default.svc'
+  project: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        maxDuration: 3m0s
+        factor: 2
+    syncOptions:
+      - CreateNamespace=true
