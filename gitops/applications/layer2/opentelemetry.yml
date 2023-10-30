@@ -8,10 +8,54 @@ metadata:
   name: opentelemetry
   namespace: argocd
 spec:
-  source:
-    repoURL: 'https://github.com/dynatrace-perfclinics/platform-engineering-tutorial.git'
-    targetRevision: main
-    path: "gitops/manifests/layer2/opentelemetry"
+  sources:
+    - repoURL: 'https://github.com/dynatrace-perfclinics/platform-engineering-tutorial.git'
+      targetRevision: main
+      path: "gitops/manifests/layer2/opentelemetry"
+    - repoURL: 'https://open-telemetry.github.io/opentelemetry-helm-charts'
+      targetRevision: 0.71.0
+      chart: opentelemetry-collector
+      helm:
+        values: |
+          extraEnvs:
+            - name: DT_URL
+              valueFrom:
+                secretKeyRef:
+                  name: dt-details
+                  key: DT_URL
+            - name: DT_OTEL_TRACE_INGEST_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: dt-details
+                  key: DT_OTEL_TRACE_INGEST_TOKEN
+          mode: deployment
+          presets:
+            logsCollection:
+              enabled: true
+              includeCollectorLogs: true
+          config:
+            receivers:
+              otlp:
+                protocols:
+                  grpc:
+                    endpoint: "0.0.0.0:4317" # https://github.com/open-telemetry/opentelemetry-helm-charts/issues/222#issuecomment-1149259626
+                  http:
+                    endpoint: "0.0.0.0:4318"
+            exporters:
+              otlphttp:
+                endpoint: "$DT_URL/api/v2/otlp"
+                headers:
+                  Authorization: "Api-Token $DT_OTEL_TRACE_INGEST_TOKEN"
+            service:
+              pipelines:
+                traces:
+                  receivers: [otlp]
+                  processors: []
+                  exporters: [otlphttp]
+                metrics:
+                  receivers: [otlp]
+                  processors: []
+                  exporters: [otlphttp]
   destination:
     namespace: opentelemetry
     server: 'https://kubernetes.default.svc'
