@@ -17,7 +17,7 @@ spec:
       labels:
         app.kubernetes.io/part-of: keptndemoapp
         app.kubernetes.io/name: nginx
-        app.kubernetes.io/version: 0.0.9
+        app.kubernetes.io/version: 0.0.1
     spec:
       containers:
       - name: nginx
