@@ -1,0 +1,19 @@
+manifestVersion: 1.0
+projects:
+  - name: project1
+    path: project1
+
+environmentGroups:
+  - name: development
+    environments:
+      - name: development-environment
+        url:
+          value: "https://abc12345.live.dynatrace.com"
+        auth:
+          token:
+            name: "monacoToken"
+          oAuth:
+            clientId:
+              name: MONACO_OAUTH_CLIENT_ID
+            clientSecret:
+              name: MONACO_OAUTH_CLIENT_SECRET
