@@ -2,40 +2,56 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   annotations:
-    argocd.argoproj.io/sync-wave: "2"
+    argocd.argoproj.io/sync-wave: "4"
   labels:
     dt.owner: "platform_team"
   name: gitlab
   namespace: argocd
 spec:
-  source:
-    repoURL: 'https://charts.gitlab.io'
-    targetRevision: 7.4.1
-    chart: gitlab
-    helm:
-      values: |
-        certmanager-issuer:
-            email: "dthotday@example.com"
-        upgradeCheck:
-          enabled: false
-        global:
-          edition: "ce"
-          # the "tracing" section is just a guess
-          # I do not think it works
-          # Apparently gitlab only supports OpenTracing
-          # https://docs.gitlab.com/charts/charts/globals.html#tracing
-          tracing:
-            connection:
-              string: "http://otel-collector.opentelemetry.svc.cluster.local:4318"
-              urlTemplate: "https://example.com/foo/{{ service }}/{{ correlation_id  }}"
-          hosts:
-            domain: example.com
-            kas:
-              resources.requests.cpu: 1m
-              resources.requests.memory: 1M
-              minReplicas: 1
-            nginx-ingress:
-              enabled: false
+  sources:
+    - repoURL: 'https://github.com/dynatrace-perfclinics/platform-engineering-tutorial.git'
+      targetRevision: main
+      path: "gitops/manifests/layer2/gitlab"
+    - repoURL: 'https://charts.gitlab.io'
+      targetRevision: 7.4.1
+      chart: gitlab
+      helm:
+        values: |
+          certmanager:
+            install: false
+          certmanager-issuer:
+              email: "dthotday@example.com"
+          upgradeCheck:
+            enabled: false
+          global:
+            edition: ce
+            # the "tracing" section is just a guess
+            # I do not think it works
+            # Apparently gitlab only supports OpenTracing
+            # https://docs.gitlab.com/charts/charts/globals.html#tracing
+            tracing:
+              connection:
+                string: "http://otel-collector.opentelemetry.svc.cluster.local:4318"
+                urlTemplate: "https://gitlab.gitlab.agardner.hotday.keptn.sh/{{ service }}/{{ correlation_id  }}"
+            hosts:
+              domain: gitlab.agardner.hotday.keptn.sh
+              nginx-ingress:
+                enabled: false
+            ingress:
+              class: nginx
+              configureCertmanager: false
+              # enabled: false
+              tls:
+                enabled: false
+          nginx-ingress:
+            enabled: false
+            controller:
+              service:
+                annotations:
+                  service.beta.kubernetes.io/aws-load-balancer-backend-protocol: https
+                  service.beta.kubernetes.io/aws-load-balancer-internal: false
+                  service.beta.kubernetes.io/aws-load-balancer-ssl-ports: 443
+
   destination:
     namespace: gitlab
     server: 'https://kubernetes.default.svc'
@@ -52,12 +68,3 @@ spec:
         factor: 2
     syncOptions:
       - CreateNamespace=true
-
-# helm repo add gitlab https://charts.gitlab.io/
-# helm repo update
-# helm upgrade --install gitlab gitlab/gitlab \
-#   --timeout 600s \
-#   --set global.hosts.domain=example.com \
-#   --set global.hosts.externalIP=10.10.10.10 \
-#   --set certmanager-issuer.email=me@example.com \
-#   --set postgresql.image.tag=13.6.0
