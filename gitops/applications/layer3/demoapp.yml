@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+  labels:
+    dt.owner: "platform_team"
+  name: demoapp
+  namespace: argocd
+spec:
+  source:
+    repoURL: 'https://github.com/dynatrace-perfclinics/platform-engineering-tutorial.git'
+    targetRevision: main
+    path: "gitops/manifests/layer3/demoapp"
+  destination:
+    namespace: keptndemo
+    server: 'https://kubernetes.default.svc'
+  project: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        maxDuration: 3m0s
+        factor: 2
+    syncOptions:
+      - CreateNamespace=true
