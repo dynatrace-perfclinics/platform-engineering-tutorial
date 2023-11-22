@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+  labels:
+    dt.owner: "platform_team"
+  name: giteaingresses
+  namespace: argocd
+spec:
+  source:
+    repoURL: 'GITHUB_REPO_PLACEHOLDER'
+    targetRevision: main
+    path: "gitops/manifests/platform/giteaingresses"
+  destination:
+    namespace: gitea
+    server: 'https://kubernetes.default.svc'
+  project: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        maxDuration: 3m0s
+        factor: 2

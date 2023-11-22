@@ -1,0 +1,37 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+  labels:
+    dt.owner: "platform_team"
+  name: nginx-ingress
+  namespace: argocd
+spec:
+  source:
+    repoURL: 'https://kubernetes.github.io/ingress-nginx'
+    targetRevision: 4.8.3
+    chart: ingress-nginx
+    # helm:
+    #   values: |
+    #     controller:
+    #       addHeaders:
+    #         X-Forwarded-Ssl: "on"
+    #       config:
+    #         use-forwarded-headers: "true"
+  destination:
+    namespace: ingress-nginx
+    server: 'https://kubernetes.default.svc'
+  project: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        maxDuration: 3m0s
+        factor: 2
+    syncOptions:
+      - CreateNamespace=true
