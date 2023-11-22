@@ -4,7 +4,7 @@
 
 Click "Use this template" to create a new repo in your account.
 
-## ii) Preparation
+## Preparation
 The ArgoCD platform app configuration currently points to the parent repository. Change this now.
 
 ```
@@ -35,9 +35,13 @@ git commit -m "Update URLs"
 git push
 ```
 
-## Preparation: Create oAuth Client TODO (Skip for now)
+[Follow steps 1 to 3 to create an OAuth Client](https://www.dynatrace.com/support/help/platform-modules/business-analytics/ba-api-ingest#oauth-client).
 
-[Follow steps 1 to 3 to create an OAuth Client](https://www.dynatrace.com/support/help/platform-modules/business-analytics/ba-api-ingest#oauth-client)
+The client (and the service user) need these permissions:
+
+1. `storage:bizevents:read`
+1. `storage:buckets:read`
+1. `storage:events:write`
 
 You should now have 3 pieces of information:
 
@@ -90,18 +94,15 @@ kubectl apply -f gitops/platform.yml
 
 Wait until the "platform" application is green before proceeding.
 
-## Create Business Events Secrets TODO (Skip for now)
+## Create Business Events Secrets
+
+> Note: Applying the platform app above creates the namespaces
+> You must wait for that before performing this step.
 
 Since secrets are namespace specific, we need to create an identical secret in each namespaces from which we wish to emit bizevents.
 
 > Note: `history -d $(history 1)` is used for security. It removes the value from history file.
 
-You MUST modify the snippet below. Do not just copy and paste:
-```
-DT_TENANT=YOURURLHERE; history -d $(history 1)
-```
-
-Now set your oAuth client ID:
 ```
 DT_OAUTH_CLIENT_ID=YOUROAUTHCLIENTID; history -d $(history 1)
 ```
@@ -118,12 +119,10 @@ DT_ACCOUNT_URN=urn:dtaccount:********; history -d $(history 1)
 
 Now create the secrets in each namespace. You can copy and paste this as-is:
 ```
-kubectl -n default create secret generic dt-bizevent-oauth-details --from-literal=dtTenant=$DT_TENANT --from-literal=oAuthClientID=$DT_OAUTH_CLIENT_ID --from-literal=oAuthClientSecret=$DT_OAUTH_CLIENT_SECRET --from-literal=accountURN=$DT_ACCOUNT_URN
-kubectl -n keptndemo create secret generic dt-bizevent-oauth-details --from-literal=dtTenant=$DT_TENANT --from-literal=oAuthClientID=$DT_OAUTH_CLIENT_ID --from-literal=oAuthClientSecret=$DT_OAUTH_CLIENT_SECRET --from-literal=accountURN=$DT_ACCOUNT_URN
-kubectl -n dynatrace create secret generic dt-bizevent-oauth-details --from-literal=dtTenant=$DT_TENANT --from-literal=oAuthClientID=$DT_OAUTH_CLIENT_ID --from-literal=oAuthClientSecret=$DT_OAUTH_CLIENT_SECRET --from-literal=accountURN=$DT_ACCOUNT_URN
+kubectl -n default create secret generic dt-bizevent-oauth-details --from-literal=dtTenant=$DT_TENANT_LIVE --from-literal=oAuthClientID=$DT_OAUTH_CLIENT_ID --from-literal=oAuthClientSecret=$DT_OAUTH_CLIENT_SECRET --from-literal=accountURN=$DT_ACCOUNT_URN
+kubectl -n dynatrace create secret generic dt-bizevent-oauth-details --from-literal=dtTenant=$DT_TENANT_LIVE --from-literal=oAuthClientID=$DT_OAUTH_CLIENT_ID --from-literal=oAuthClientSecret=$DT_OAUTH_CLIENT_SECRET --from-literal=accountURN=$DT_ACCOUNT_URN
 kubectl -n opentelemetry create secret generic dt-bizevent-oauth-details 
---from-literal=dtTenant=$DT_TENANT --from-literal=oAuthClientID=$DT_OAUTH_CLIENT_ID --from-literal=oAuthClientSecret=$DT_OAUTH_CLIENT_SECRET --from-literal=accountURN=$DT_ACCOUNT_URN
-kubectl -n webhook create secret generic dt-bizevent-oauth-details --from-literal=dtTenant=$DT_TENANT --from-literal=oAuthClientID=$DT_OAUTH_CLIENT_ID --from-literal=oAuthClientSecret=$DT_OAUTH_CLIENT_SECRET --from-literal=accountURN=$DT_ACCOUNT_URN
+--from-literal=dtTenant=$DT_TENANT_LIVE --from-literal=oAuthClientID=$DT_OAUTH_CLIENT_ID --from-literal=oAuthClientSecret=$DT_OAUTH_CLIENT_SECRET --from-literal=accountURN=$DT_ACCOUNT_URN
 ```
 
 ## Create Dynatrace Secret to Activate the OneAgent
@@ -227,4 +226,3 @@ By now, you should see 12 applications in ArgoCD:
 1. Enter your username eg. `user4`
 1. Create the application
 1. Visit argocd / backstage to see your app being deployed
-
