@@ -12,7 +12,6 @@ metadata:
     argocd.argoproj.io/hook-delete-policy: HookSucceeded
 spec:
   entrypoint: git-clone
-#  entrypoint: whalesay
   templates:
   - name: git-clone
     inputs:
@@ -21,9 +20,7 @@ spec:
         path: /src
         git:
           repo: GITHUB_REPO_PLACEHOLDER
-#          revision: "v2.1.1"
     container:
-#      image: golang:1.10
       image: dynatrace/dynatrace-configuration-as-code:latest
       args: [
         "deploy",
@@ -39,11 +36,4 @@ spec:
           secretKeyRef:
             name: monaco-secret
             key: monacoToken
-#      command: [sh, -c]
-#      args: ["git status && ls -al && git log --oneline"]
       workingDir: /src
-  # - name: whalesay
-  #   container:
-  #     image: docker/whalesay:latest
-  #     command: [cowsay]
-  #     args: ["hello world from presync hook"]

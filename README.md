@@ -180,6 +180,23 @@ Create the secret:
 ```
 kubectl -n opentelemetry create secret generic dt-details --from-literal=DT_URL=$DT_TENANT_LIVE --from-literal=DT_OTEL_ALL_INGEST_TOKEN=$DT_ALL_INGEST_TOKEN
 ```
+## Create a Configuration as Code (aka Monaco) Token
+
+The token depends on the configuration you wish to read / write (see the [monaco](monaco/)) folder monaco configurations in [gitlab-setup.sh](gitlab-setup.sh).
+
+Initially the token needs the following permissions:
+
+1. `Access problem and event feed, metrics, and topology`
+1. `Read configuration` and `Write configuration`
+1. `Read settings` and `Write settings`
+1. `Read SLO` and `Write SLO`
+
+Create the token:
+
+```
+DT_MONACO_TOKEN=dt0c01.******.*************; history -d $(history 1)
+kubectl -n monaco create secret generic monaco-secret --from-literal=monacoToken=$DT_MONACO_TOKEN
+```
 
 ## Configure Gitlab
 
