@@ -12,4 +12,4 @@ Environment: ${{ values.releaseStage }}
 ## Monitored by Dynatrace
 📈Click the logo to view your dashboard 📈
 
-[![](https://raw.githubusercontent.com/agardnerIT/test123/main/dtlogo.svg)](https://wls34801.apps.dynatrace.com/ui/apps/dynatrace.dashboards/dashboard/1712b7c7-2021-436f-b44a-b0b37971a428)
+[![](https://raw.githubusercontent.com/FORKED_GITHUB_ORGNAME_PLACEHOLDER/FORKED_REPO_NAME_PLACEHOLDER/main/dtlogo.svg)](DT_TENANT_APPS_PLACEHOLDER/ui/apps/dynatrace.dashboards/)

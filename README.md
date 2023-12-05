@@ -1,12 +1,41 @@
-# Platform Engineering
+# Platform Engineering with Dynatrace Tutorial
 
-** WORK IN PROGRESS **
+** WORK IN PROGRESS ** - getting this ready for Dynatrace Perform 2024 HOT (Hands On Training) Days
 
-## FORK this repository for each training class!
+## Step 1: FORK or USE CASE TEMPLATE to create a new training class repository!
 
-As every training clas will have unique URLs to our K8s cluster we need to fork this into a GitHub account, e.g: class1, class2, ... -> and then run through the rest of the steps
+This repositor contains K8s CRDs that defines the core platform for each training class. Its our "Core Platform GitOps Repo" that contains ArgoCD Applications allowing ArgoCD to deploy Backstage, GitLab, OpenTelemetry, Keptn, Dynatrace and more ...
 
-## Preparation
+Every training class environment therefore needs its own unique copy of this repo as it will also include the unique domain name definitions.
+
+Therefore its necessary to either *FORK* this repository or *USE AS TEMPLATE* to create a new repository, e.g: https://github.com/yourorg/reponame_class1, https://github.com/yourorg/reponame_class2 ...
+
+Once you have your own version of this repository continue with the next steps!
+
+## Step 2: Replace GitHub Repo references in Platform CRDs
+
+Some of the files we just cloned are pointing to other files in our GitHub repo. To point to our just cloned repository we need to do this
+
+```
+export FORKED_GITHUB_ORGNAME=YOURORG    # e.g: dtu-engineering
+export FORKED_REPO_NAME=YOURREPONAME    # e.g: classroom1
+export FORKED_TEMPLATE_REPO="https://github.com/$FORKED_GITHUB_ORGNAME/$FORKED_REPO_NAME"
+
+# Clone the template files locally
+git clone $FORKED_TEMPLATE_REPO
+
+# Now lets replace the placeholders
+find . -type f -not -path '*/\.*' -exec sed -i "s#FORKED_GITHUB_ORGNAME_PLACEHOLDER#$FORKED_GITHUB_ORGNAME#g" {} +
+find . -type f -not -path '*/\.*' -exec sed -i "s#FORKED_REPO_NAME_PLACEHOLDER#$FORKED_REPO_NAME#g" {} +
+find . -type f -not -path '*/\.*' -exec sed -i "s#FORKED_TEMPLATE_REPO_PLACEHOLDER#$FORKED_TEMPLATE_REPO#g" {} +
+
+# Now lets commit those GitHub Urls
+git add -A
+git commit -m "Update GitHub Template Repo URLs"
+git push
+```
+
+## Step 2: Preparations: Domain Names, Tokens ...
 
 The ArgoCD platform app configuration currently points to the parent repository. Change this now.
 
@@ -35,25 +64,11 @@ git commit -m "Update URLs"
 git push
 ```
 
-[Follow steps 1 to 3 to create an OAuth Client](https://www.dynatrace.com/support/help/platform-modules/business-analytics/ba-api-ingest#oauth-client).
+## Step 3: Create all Dynatrace Configuration and Secrets
 
-The client (and the service user) need these permissions:
+We have a couple of Dynatrace integrations that require tokens and OAuth credentials stored in k8s secrets. Lets create them one by one!
 
-1. `storage:bizevents:read`
-1. `storage:buckets:read`
-1. `storage:events:write`
-
-You should now have 3 pieces of information:
-
-1. `oAuth Client ID`: `dt0s02.1234ABCD`
-2. `oAuth Client Secret`: `dt0s02.1234ABCD.*********`
-3. `DT Account URN`: urn:dtaccount:********-****-****-****-************`
-
-These details will be used to send Dynatrace bizevents for different applications in various namespaces.
-
-## Create all Dynatrace Secrets
-
-### Create Dynatrace Secret to Activate the OneAgent
+### 3.1 Create Dynatrace Secret to Activate the OneAgent
 
 The OneAgent operator will be deployed onto the cluster, but it needs to know where to send data. It needs your DT tenant details.
 
@@ -83,7 +98,7 @@ kubectl create namespace dynatrace
 kubectl -n dynatrace create secret generic hot-day-platform-engineering --from-literal=apiToken=$DT_OP_TOKEN --from-literal=dataIngestToken=$DT_INGEST_TOKEN
 ```
 
-### Create Dynatrace OpenTelemetry Ingest Token
+### 3.2 Create Dynatrace OpenTelemetry Ingest Token
 
 An OpenTelemetry collector is deployed but does not have the DT endpoint details. Using the same method as above, create those details now.
 
@@ -109,17 +124,17 @@ Create the secret:
 kubectl create namespace opentelemetry
 kubectl -n opentelemetry create secret generic dt-details --from-literal=DT_URL=$DT_TENANT_LIVE --from-literal=DT_OTEL_ALL_INGEST_TOKEN=$DT_ALL_INGEST_TOKEN
 ```
-### Create a Configuration as Code (aka Monaco) Token
+### 3.3 Create a Configuration as Code (aka Monaco) Token
 
-The token depends on the configuration you wish to read / write (see the [monaco](monaco/)) folder monaco configurations in [gitlab-setup.sh](gitlab-setup.sh).
+The token depends on the configuration you wish to read / write (see the [monaco](monaco/)) folder monaco configurations.
 
 Initially the token needs the following permissions:
 
 1. `Access problem and event feed, metrics, and topology`
-1. `Read configuration` and `Write configuration`
-1. `Read settings` and `Write settings`
-1. `Read SLO` and `Write SLO`
-1. `Create and read synthetic monitors, locations, and nodes`
+2. `Read configuration` and `Write configuration`
+3. `Read settings` and `Write settings`
+4. `Read SLO` and `Write SLO`
+5. `Create and read synthetic monitors, locations, and nodes`
 
 Create the token:
 
@@ -129,7 +144,26 @@ kubectl create namespace monaco
 kubectl -n monaco create secret generic monaco-secret --from-literal=monacoToken=$DT_MONACO_TOKEN
 ```
 
-### Create Business Events Secrets
+### 3.5 Create Business Events Secrets
+
+We will need an OAuth client to send BizEvents.
+
+[Follow steps 1 to 3 to create an OAuth Client](https://www.dynatrace.com/support/help/platform-modules/business-analytics/ba-api-ingest#oauth-client).
+
+The client (and the service user) need these permissions:
+
+1. `storage:bizevents:read`
+1. `storage:buckets:read`
+1. `storage:events:write`
+
+You should now have 3 pieces of information:
+
+1. `oAuth Client ID`: `dt0s02.1234ABCD`
+2. `oAuth Client Secret`: `dt0s02.1234ABCD.*********`
+3. `DT Account URN`: urn:dtaccount:********-****-****-****-************`
+
+These details will be used to send Dynatrace bizevents for different applications in various namespaces.
+
 
 > Note: Applying the platform app above creates the namespaces
 > You must wait for that before performing this step.
@@ -159,7 +193,9 @@ kubectl -n opentelemetry create secret generic dt-bizevent-oauth-details --from-
 ```
 
 
-## Install and configure ArgoCD on Cluster
+## Step 4: Install and configure ArgoCD on Cluster
+
+ArgoCD is our central GitOps Operator that deploys our Core Platform Components (taken from this repository) as well as will deploy custom apps that attendees will create during the class room hands-on tutorials!
 
 ```
 kubectl create namespace argocd
@@ -179,8 +215,8 @@ Open a new terminal for any new commands you need to run.
 Switch back to the terminal window and print out the argocd password:
 
 ```
-ARGOCD_PASSWORD=$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
-echo $ARGOCD_PASSWORD
+ARGOCDPWD=$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
+echo $ARGOCDPWD
 ```
 
 Username: `admin`
@@ -190,18 +226,20 @@ Go to `http://localhost:8080` and log in to Argo.
 
 The UI should show "No Applications".
 
-## Apply Platform Apps: GitLab, Dynatrace, Backstage, ...
+## Step 5: Apply Platform Apps: GitLab, Dynatrace, Backstage, ...
 
-Install the platform apps now.
+Now its time to tell ArgoCD to install all our platform components. For that we have a so called AppOfApps prepared that tells ArgoCD from which folders in our GitHub repository to fetch Backstage, GitLab, OpenTelemetry, ...
 
 ```
 kubectl apply -f gitops/platform.yml
 ```
 
 If you do port-forward with Argo: Wait until the "platform" application is green before proceeding.
-If you dont: try to access https://argcd.$BASE_DOMAIN
+If you dont: try to access https://argocd.$BASE_DOMAIN
 
-## Configure Gitlab
+## Step 6: Configure GitLab
+
+GitLab is our git repository for all apps that the attendees will create and that will then be deployed by ArgoCD on the target k8s cluster.
 
 To login to GitLab we use `root` as the username
 Password can be obtained via
@@ -211,32 +249,37 @@ echo "GitLab user: root"
 echo "GitLab pwd: $GITLABPWD"
 ```
 
-### Set https access
+### 6.1 Set HTTPS Clone access
+
+This step is needed because otherwise GitLab will return http:// address when Backstage creates new GitLab repositories which will then fail at a later stage.
+There is a setting we need to change in the GitLab UI
 
 1. Log into GitLab
 2. Go to `https://gitlab.$BASEDOMAIN/admin/application_settings/general`
-3. Change the "Custom Git clone URL for HTTP(S)" from `http://...`` to `https://...`
+3. Change the "Custom Git clone URL for HTTP(S)" from `http://gitlab.xxxxx` to `https://gitlab.$BASEDOMAIN`
 
-### Create Personal Access Token (PAT)
+### 6.2 Create Personal Access Token (PAT)
+
+In order for tools like Backstage to interact with GitLab we need a PAT.
 
 1. Log into Gitlab
 2. Go to your user profile `https://gitlab.$BASEDOMAIN-/profile/personal_access_tokens`
 3. Create a PAT with `api, read_repository, write_repository`
 
-### Set up GitLab
+### 6.3 Initialize GitLab with template repositories
 
 When you have a Personal Access Token (PAT), configure this:
 ```
 export GL_PAT="YOURGLPAT"
-export BASE_DOMAIN="dtu-test-*****.dynatrace.training"
 ```
 
 Now run the following:
 ```
-# TODO: Update to proper repo to your fork!
-export FORKED_REPO_NAME=YOURREPONAME    # e.g: classroom1
-export FORKED_GITHUB_ORGNAME=YOURORG    # e.g: dynatrace
-export TEMPLATE_REPO="https://github.com/$FORKED_GITHUB_ORGNAME/$FORKED_REPO_NAME"
+# You should already have the next three set from our first step!
+# export FORKED_GITHUB_ORGNAME=YOURORG    # e.g: dtu-engineering
+# export FORKED_REPO_NAME=YOURREPONAME    # e.g: classroom1
+# export FORKED_TEMPLATE_REPO="https://github.com/$FORKED_GITHUB_ORGNAME/$FORKED_REPO_NAME"
+
 export GIT_USER="root"
 export GIT_PWD="$GL_PAT"
 export GIT_EMAIL="admin@example.com"
@@ -252,22 +295,20 @@ curl -X POST -d '{"name": "'$GIT_REPO_APP_TEMPLATES_TEMPLATE_NAME'", "initialize
 git config --global user.email "$GIT_EMAIL" && git config --global user.name "$GIT_USER"
 # Ensure terminal is in home directory
 cd
-# Clone template files
-git clone $REPO_TO_CLONE
 # Clone new empty repo for backstage templates
 git clone https://gitlab.$BASE_DOMAIN/$GIT_USER/$GIT_REPO_BACKSTAGE_TEMPLATES_TEMPLATE_NAME.git
 # Clone new empty repo for app templates
 git clone https://gitlab.$BASE_DOMAIN/$GIT_USER/$GIT_REPO_APP_TEMPLATES_TEMPLATE_NAME.git
 # Copy files from template for backstage templates repo
 # Then commit and push files
-cp -R $TEMPLATE_REPO/backstage-templates ./$GIT_REPO_BACKSTAGE_TEMPLATES_TEMPLATE_NAME
+cp -R $FORKED_TEMPLATE_REPO/backstage-templates ./$GIT_REPO_BACKSTAGE_TEMPLATES_TEMPLATE_NAME
 cd ./$GIT_REPO_BACKSTAGE_TEMPLATES_TEMPLATE_NAME
 git add -A
 git commit -m "initial commit"
 git push https://$GIT_USER:$GIT_PWD@gitlab.$BASE_DOMAIN/$GIT_USER/$GIT_REPO_BACKSTAGE_TEMPLATES_TEMPLATE_NAME.git
 # Copy files from template
 cd
-cp -R $TEMPLATE_REPO/apptemplates ./$GIT_REPO_APP_TEMPLATES_TEMPLATE_NAME
+cp -R $FORKED_TEMPLATE_REPO/apptemplates ./$GIT_REPO_APP_TEMPLATES_TEMPLATE_NAME
 cd ./$GIT_REPO_APP_TEMPLATES_TEMPLATE_NAME
 git add -A
 git commit -m "initial commit"
@@ -280,10 +321,9 @@ git push https://$GIT_USER:$GIT_PWD@gitlab.$BASE_DOMAIN/$GIT_USER/$GIT_REPO_APP_
 # TODO: Rename to something more logical like "projects" or "teamprojects"
 curl -X POST -d '{ "name": "group1", "path": "group1", "visibility": "public" }' -H "Content-Type: application/json" -H "PRIVATE-TOKEN: $GL_PAT" "https://gitlab.$BASE_DOMAIN/api/v4/groups"
 
-# TODO: Can this logic be moved into a postsync workflow when Gitlab is installed?
 ```
 
-## Configure Backstage
+## Step 7: Configure Backstage
 
 When Argo is installed and all the platform apps are installed and happily green, configure a secret for Backstage:
 
@@ -297,7 +337,8 @@ ARGOCD_TOKEN="argocd.token=$(argocd account generate-token --account alice)"
 kubectl config set-context --current --namespace=default 
 kubectl -n backstage create secret generic backstage-secrets --from-literal=GITLAB_TOKEN=$GL_PAT --from-literal=ARGOCD_TOKEN=$ARGOCD_TOKEN
 ```
-## Recap
+
+## Step 8: Recap
 
 By now, you should see 12 applications in ArgoCD:
 
@@ -316,9 +357,37 @@ By now, you should see 12 applications in ArgoCD:
 | nginx-ingress| Nginx ingress to access cluster |
 | opentelemetry | OpenTelemetry collector to send data to DT |
 
-## Usage
+You should be able to get all your credentials you need through this:
+```
+GITLABURL=https://gitlab.$BASEDOMAIN
+GITLABUSER=root
+GITLABPWD=$(kubectl -n gitlab get secret gitlab-gitlab-initial-root-password -ojsonpath='{.data.password}' | base64 --decode)
+
+ARGOCDURL=https://argocd.$BASEDOMAIN
+ARGOCDUSER=admin
+ARGOCDPWD=$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
+
+BACKSTAGEURL=https://backstage.$BASEDOMAIN
+
+echo "-------------------------------------------------------------"
+echo "GitLab:    $GITLABURL"
+echo "User:      $GITLABUSER"
+echo "Pwd:       $GITLABPWD"
+echo "----"
+echo "ArgoCD:    $ARGOCDLABURL"
+echo "User:      $ARGOCDLABUSER"
+echo "Pwd:       $ARGOCDLABPWD"
+echo "----"
+echo "Backstage: $BACKSTAGEURL"
+echo "----"
+echo "Dynatrace: $DT_TENANT_APPS"
+```
+
+## Step 9: Usage
 
 1. Visit backstage
-1. Enter your username eg. `team4`
-1. Create the application
-1. Visit argocd / backstage to see your app being deployed
+2. Create a new app based on the default template
+3. Fill out all form values eg. `team4`, ...
+4. Create the application
+5. Visit argocd / backstage to see your app being deployed
+6. Visit Dynatrace to see everything being deployed

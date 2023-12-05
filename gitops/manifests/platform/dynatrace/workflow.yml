@@ -19,7 +19,7 @@ spec:
       - name: git-files
         path: /src
         git:
-          repo: https://github.com/agardnerit/test123.git
+          repo: FORKED_TEMPLATE_REPO_PLACEHOLDER.git
     container:
       image: dynatrace/dynatrace-configuration-as-code:latest
       args: [

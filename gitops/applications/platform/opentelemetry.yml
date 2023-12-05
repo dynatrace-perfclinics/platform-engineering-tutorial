@@ -9,7 +9,7 @@ metadata:
   namespace: argocd
 spec:
   sources:
-    - repoURL: 'https://github.com/agardnerit/test123.git'
+    - repoURL: 'FORKED_TEMPLATE_REPO_PLACEHOLDER.git'
       targetRevision: main
       path: "gitops/manifests/platform/opentelemetry"
     - repoURL: 'https://open-telemetry.github.io/opentelemetry-helm-charts'

@@ -14,7 +14,7 @@ spec:
       chart: klt
       # helm:
       #   values: |
-    - repoURL: 'https://github.com/agardnerit/test123.git'
+    - repoURL: 'FORKED_TEMPLATE_REPO_PLACEHOLDER.git'
       targetRevision: main
       path: "gitops/manifests/platform/keptn"
   destination:
