@@ -23,6 +23,7 @@ export FORKED_TEMPLATE_REPO="https://github.com/$FORKED_GITHUB_ORGNAME/$FORKED_R
 
 # Clone the template files locally
 git clone $FORKED_TEMPLATE_REPO
+cd $FORKED_REPO_NAME
 
 # Now lets replace the placeholders
 find . -type f -not -path '*/\.*' -exec sed -i "s#FORKED_GITHUB_ORGNAME_PLACEHOLDER#$FORKED_GITHUB_ORGNAME#g" {} +
@@ -124,6 +125,7 @@ Create the secret:
 kubectl create namespace opentelemetry
 kubectl -n opentelemetry create secret generic dt-details --from-literal=DT_URL=$DT_TENANT_LIVE --from-literal=DT_OTEL_ALL_INGEST_TOKEN=$DT_ALL_INGEST_TOKEN
 ```
+
 ### 3.3 Create a Configuration as Code (aka Monaco) Token
 
 The token depends on the configuration you wish to read / write (see the [monaco](monaco/)) folder monaco configurations.
@@ -141,7 +143,17 @@ Create the token:
 ```
 DT_MONACO_TOKEN=dt0c01.******.*************; history -d $(history 1)
 kubectl create namespace monaco
-kubectl -n monaco create secret generic monaco-secret --from-literal=monacoToken=$DT_MONACO_TOKEN
+kubectl -n argocd create secret generic monaco-secret --from-literal=monacoToken=$DT_MONACO_TOKEN
+```
+
+### 3.4 Create an ArgoCD Notifications Token
+
+We are using ArgoCD Notifications to send Events to Dynatrace using the Events API V2. For that we need to a token that can send events to Dynatrace
+
+```
+DT_NOTIFICATION_TOKEN=dt0c01.******.*************; history -d $(history 1)
+kubectl create namespace argocd
+kubectl -n monaco create secret generic argocd-notifications-secret --from-literal=dynatrace-url=$DT_TENANT_LIVE --from-literal=dynatrace-token=$DT_NOTIFICATION_TOKEN
 ```
 
 ### 3.5 Create Business Events Secrets
