@@ -9,7 +9,7 @@ metadata:
   namespace: argocd
 spec:
   source:
-    repoURL: 'GITHUB_REPO_PLACEHOLDER'
+    repoURL: 'https://github.com/agardnerit/test123.git'
     targetRevision: main
     path: "gitops/manifests/platform/cronJobs"
   destination:

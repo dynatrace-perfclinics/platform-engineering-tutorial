@@ -1,9 +1,7 @@
 manifestVersion: 1.0
 projects:
-  - name: configure-dt
-    path: configure-dt
-  - name: project1
-    path: project1
+  - name: configure-platform
+    path: configure-platform
 
 environmentGroups:
   - name: development
@@ -27,5 +25,3 @@ environmentGroups:
               name: MONACO_OAUTH_CLIENT_ID
             clientSecret:
               name: MONACO_OAUTH_CLIENT_SECRET
-#            tokenEndpoint:
-#              value: https://sso-sprint.dynatracelabs.com/sso/oauth2/token

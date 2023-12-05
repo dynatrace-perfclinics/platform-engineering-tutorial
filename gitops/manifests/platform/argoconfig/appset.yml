@@ -1,0 +1,44 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: customer-apps
+  namespace: argocd
+spec:
+  generators:
+  - scmProvider:
+      filters:
+      - repositoryMatch: -cd$
+        pathsExist: [argoapp]
+      cloneProtocol: https
+      gitlab:
+        group: "group1"
+        api: "https://gitlab.BASE_DOMAIN_PLACEHOLDER/"
+  template:
+    metadata:
+      name: "{{ repository }}"
+    spec:
+      project: default
+      source:
+        repoURL: "{{ url }}"
+        targetRevision: HEAD
+        path: argoapp
+      destination:
+        server: 'https://kubernetes.default.svc'
+        namespace: '{{ repository }}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+          allowEmpty: true
+        syncOptions:
+          - Validate=true
+          - CreateNamespace=true
+          - PrunePropagationPolicy=foreground
+          - PruneLast=true
+        retry:
+          limit: 5
+          backoff:
+            duration: 5s
+            factor: 2
+            maxDuration: 3m

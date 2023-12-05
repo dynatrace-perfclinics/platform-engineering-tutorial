@@ -7,21 +7,22 @@ data:
   app-config.production.yaml: |
     app:
       title: DT HOT Day - Backstage
-      baseUrl: https://backstage.INGRESS_DOMAIN_PLACEHOLDER
+      baseUrl: https://backstage.BASE_DOMAIN_PLACEHOLDER
 
     organization:
       name: DT HOT Day - Backstage
 
     backend:
-      baseUrl: https://backstage.INGRESS_DOMAIN_PLACEHOLDER
+      baseUrl: https://backstage.BASE_DOMAIN_PLACEHOLDER
       listen:
         port: 7007 # TODO set the port Backstage is listening on
       csp:
         # Content-Security-Policy directives follow the Helmet format: https://helmetjs.github.io/#reference
         # Default Helmet Content-Security-Policy values can be removed by setting the key to false
         connect-src: ["'self'", 'http:', 'https:']
+        img-src: ["'self'", "https:"]
       cors:
-        origin: https://backstage.INGRESS_DOMAIN_PLACEHOLDER
+        origin: https://backstage.BASE_DOMAIN_PLACEHOLDER
         methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
         credentials: true
       # If you want to use Postgres see https://backstage.io/docs/tutorials/switching-sqlite-postgres/
@@ -30,7 +31,7 @@ data:
         connection: ':memory:'
       reading:
         allow:
-          - host: '*.INGRESS_DOMAIN_PLACEHOLDER'
+          - host: '*'
 
     # See http://backstage.io/docs/features/techdocs/configuration
     techdocs:
@@ -53,11 +54,12 @@ data:
     #     - host: github.com
     #       token: ${GITHUB_TOKEN}
       gitlab:
-        - host: gitlab.INGRESS_DOMAIN_PLACEHOLDER
-          baseUrl: https://gitlab.INGRESS_DOMAIN_PLACEHOLDER
-          apiBaseUrl: https://gitlab.INGRESS_DOMAIN_PLACEHOLDER/api/v4
+        - host: gitlab.BASE_DOMAIN_PLACEHOLDER
+          apiBaseUrl: https://gitlab.BASE_DOMAIN_PLACEHOLDER/api/v4
           token: ${GITLAB_TOKEN}
     catalog:
+      rules:
+        - allow: [Component, Template, User, Group]
       import:
         entityFilename: catalog-info.yaml
       locations: []
@@ -75,42 +77,55 @@ data:
         # Don't forget to define an integration for your GitLab host(s)
         gitlab:
           public:
-            host: gitlab.INGRESS_DOMAIN_PLACEHOLDER
+            host: gitlab.BASE_DOMAIN_PLACEHOLDER
+            apiBaseUrl: https://gitlab.BASE_DOMAIN_PLACEHOLDER/api/v4
+            # proxySecure: true
             branch: main
             skipForkedRepos: true
             entityFilename: catalog-info.yaml
             schedule:
-              frequency: { minutes: 1 }
-              timeout: { minutes: 3 }
-
-    # See https://backstage.io/docs/plugins/proxying/
-    proxy:
-      # ArgoCD plugin: https://roadie.io/backstage/plugins/argo-cd/
-      '/argocd/api':
-        target: https://argo.INGRESS_DOMAIN_PLACEHOLDER/api/v1/
-        changeOrigin: true
-        # Set to false if your ArgoCD api has self-signed cert
-        secure: false
-        headers:
-          Cookie:
-            $env: ${ARGOCD_TOKEN}
-
+              frequency: { seconds: 10 }
+              timeout: { minutes: 1 }
+              
+    # See https://github.com/RoadieHQ/roadie-backstage-plugins/tree/main/plugins/backend/backstage-plugin-argo-cd-backend
+    argocd:
+      appLocatorMethods:
+        - type: 'config'
+          instances:
+            - name: argocd
+              url: https://argo.BASE_DOMAIN_PLACEHOLDER
+              token: ${ARGOCD_TOKEN}
+              
     # See https://backstage.io/docs/features/kubernetes/configuration
+    #kubernetes:
+    #  serviceLocatorMethod:
+    #    type: singleTenant
+    #  clusterLocatorMethods:
+    #    - type: config
+    #      clusters:
+    #        - url: http://127.0.0.1:9999
+    #          name: local-k8s
+    #          authProvider: 'serviceAccount'
+    #          skipTLSVerify: false
+    #          skipMetricsLookup: true
+    #          dashboardApp: standard
+    #          #caData: ${K8S_CONFIG_CA_DATA}
+    #          #caFile: '' # local path to CA file
+    #          #customResources:
+    #          #  - group: 'argoproj.io'
+    #          #    apiVersion: 'v1alpha1'
+    #          #    plural: 'rollouts'
     kubernetes:
       serviceLocatorMethod:
-        type: singleTenant
+        type: multiTenant
       clusterLocatorMethods:
         - type: config
-          clusters:
-            - url: http://127.0.0.1:9999
-              name: local-k8s
-              authProvider: 'serviceAccount'
-              skipTLSVerify: false
-              skipMetricsLookup: true
-              dashboardApp: standard
-              #caData: ${K8S_CONFIG_CA_DATA}
-              #caFile: '' # local path to CA file
-              #customResources:
-              #  - group: 'argoproj.io'
-              #    apiVersion: 'v1alpha1'
-              #    plural: 'rollouts'
+          clusters: []
+    proxy:
+      endpoints:
+        '/dteventingest':
+          target: "DT_TENANT_LIVE/api/v2/events/ingest"
+          method: "POST"
+          headers:
+            Content-Type: "application/json; charset=utf-8"
+            Authorization: "Api-Token ${DT_EVENT_INGEST_TOKEN}"

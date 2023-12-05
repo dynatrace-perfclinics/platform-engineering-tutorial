@@ -9,7 +9,7 @@ metadata:
   namespace: argocd
 spec:
   source:
-    repoURL: 'GITHUB_REPO_PLACEHOLDER'
+    repoURL: 'https://github.com/agardnerit/test123.git'
     targetRevision: main
     path: "gitops/manifests/platform/argoconfig"
   destination:
@@ -26,5 +26,3 @@ spec:
         duration: 5s
         maxDuration: 3m0s
         factor: 2
-    syncOptions:
-      - CreateNamespace=true

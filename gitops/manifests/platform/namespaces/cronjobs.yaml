@@ -4,4 +4,4 @@ kind: Namespace
 metadata:
   name: cronjobs
   labels:
-    dt.owner: platform_team
+    dt.owner: "platform_team"

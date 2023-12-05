@@ -9,7 +9,7 @@ metadata:
   namespace: argocd
 spec:
   sources:
-    - repoURL: 'GITHUB_REPO_PLACEHOLDER'
+    - repoURL: 'https://github.com/agardnerit/test123.git'
       targetRevision: main
       path: "gitops/manifests/platform/gitlab"
     - repoURL: 'https://charts.gitlab.io'
@@ -24,12 +24,30 @@ spec:
                 requests:
                   cpu: 1m
                   memory: 1M
+              annotations:
+                metrics.dynatrace.com/scrape: 'true'
+                metrics.dynatrace.com/port: '3807'
             webservice:
               replicaCount: 1
               resources:
                 requests:
                   cpu: 1m
                   memory: 1M
+              annotations:
+                metrics.dynatrace.com/scrape: 'true'
+                metrics.dynatrace.com/port: '8083'
+            gitaly:
+              annotations:
+                metrics.dynatrace.com/scrape: 'true'
+                metrics.dynatrace.com/port: '9236'
+            gitlab-exporter:
+              annotations:
+                metrics.dynatrace.com/scrape: 'true'
+                metrics.dynatrace.com/port: '9168'
+            kas:
+              annotations:
+                metrics.dynatrace.com/scrape: 'true'
+                metrics.dynatrace.com/port: '8151'
           certmanager:
             install: false
           certmanager-issuer:
@@ -45,10 +63,10 @@ spec:
             #tracing:
             #  connection:
             #    string: "http://otel-collector.opentelemetry.svc.cluster.local:4318"
-            #    urlTemplate: "https://gitlab.INGRESS_DOMAIN_PLACEHOLDER/{{ service }}/{{ correlation_id  }}"
+            #    urlTemplate: "https://gitlab.BASE_DOMAIN_PLACEHOLDER/{{ service }}/{{ correlation_id  }}"
             hosts:
               https: false
-              domain: INGRESS_DOMAIN_PLACEHOLDER
+              domain: BASE_DOMAIN_PLACEHOLDER
               nginx-ingress:
                 enabled: false
             ingress:
@@ -59,18 +77,11 @@ spec:
              tls:
                enabled: false
              annotations:
-               nginx.ingress.kubernetes.io/ssl-redirect: "false"
+               nginx.ingress.kubernetes.io/ssl-redirect: "true"
           nginx-ingress:
             enabled: false
           gitlab-runner:
             install: false
-          #   controller:
-          #     service:
-          #       annotations:
-          #         service.beta.kubernetes.io/aws-load-balancer-backend-protocol: https
-          #         service.beta.kubernetes.io/aws-load-balancer-internal: true
-          #         service.beta.kubernetes.io/aws-load-balancer-ssl-ports: 443
-
   destination:
     namespace: gitlab
     server: 'https://kubernetes.default.svc'
@@ -85,5 +96,3 @@ spec:
         duration: 5s
         maxDuration: 3m0s
         factor: 2
-    syncOptions:
-      - CreateNamespace=true

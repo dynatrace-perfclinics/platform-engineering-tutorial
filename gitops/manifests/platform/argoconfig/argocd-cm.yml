@@ -7,5 +7,9 @@ metadata:
     app.kubernetes.io/name: argocd-cm
     app.kubernetes.io/part-of: argocd
 data:
+  # create a user account for 'alice'
+  # provide apiKey and login access + enable the account by default
   accounts.alice: apiKey, login
-  otlp.address: "otel-collector.opentelemetry.svc.cluster.local:4317"
+  accounts.alice.enabled: "true"
+  # Enables application status badge feature
+  statusbadge.enabled: "true"

@@ -10,7 +10,7 @@ metadata:
     nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
 spec:
   rules:
-    - host: workflows.INGRESS_DOMAIN_PLACEHOLDER
+    - host: workflows.BASE_DOMAIN_PLACEHOLDER
       http:
         paths:
           - path: /

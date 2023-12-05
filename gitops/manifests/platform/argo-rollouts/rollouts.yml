@@ -15462,6 +15462,9 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: argo-rollouts
+      annotations:
+        metrics.dynatrace.com/scrape: 'true'
+        metrics.dynatrace.com/port: '8090'
     spec:
       containers:
       - image: quay.io/argoproj/argo-rollouts:v1.6.0

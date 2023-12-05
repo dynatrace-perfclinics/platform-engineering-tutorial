@@ -1,0 +1,195 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: app-creator
+  title: Create a New Application (62)
+  description: Create a new application from a template
+  tags:
+    - simplenodeservice
+  links:
+    - url: https://www.dynatrace.com/trial
+      title: Dynatrace Trial
+      icon: docs
+    - url: https://github.com/grabnerandi/simplenodeservice
+      title: simplenodeservice on GitHub
+      icon: search
+spec:
+  owner: infrastructure
+  type: service
+  parameters:
+    - title: Choose a Project
+      properties:
+        projectName:
+          title: Choose a Project
+          type: string
+          description: Which project would you like to deploy?
+          enum:
+            - 'simplenodeservice'
+          # - 'project2TODOX'
+          #enumNames:
+          #  - 'simplenodeservice'
+          #  - 'project2TODO'
+    - title: Your Team's Details
+      required:
+        - teamIdentifier
+        - teamFullName
+        - teamEmail
+      properties:
+        teamIdentifier:
+          title: Team identifier
+          description: Your unique internal team identifier (eg. team01)
+          type: string
+          pattern: '^team\d+$' # must match `team` + 1 or more digit. eg. `team1`, `team123`, `team9843` all valid. `team` invalid.
+          ui:placeholder: 'teamIdentifier'
+        teamFullName:
+          title: Full name of the team 
+          description: Your real team name (eg. Team Best App Ever)
+          type: string
+          ui:placeholder: 'teamFullName'
+        teamEmail:
+          title: Team Email
+          description: Email to reach your team (eg. team01@dynatrace.training)
+          type: string
+          ui:placeholder: 'teamEmail'
+    - title: Application Details
+      required:
+        - appVersion
+        - releaseStage
+        - doraEnabled
+        - includeSecurityScans
+        - includeDTConfig
+      properties:
+        appVersion:
+          title: Application Version
+          description: SemVer eg. 1.0.2
+          type: string
+          default: "1.0.2"
+#          pattern: "^\d+.\d+.\d+$"
+        releaseStage:
+          title: "Software Lifecycle Stage"
+          description: "Which stage is this software in? (eg. preprod)"
+          type: string
+          default: "preprod"
+        doraEnabled:
+          title: "DORA metric tracking enabled?"
+          description: "Enable automatic DORA metric and OpenTelemetry trace generation for this application?"
+          type: string
+          enum:
+            - 'enabled'
+            - 'not enabled'
+          default: "enabled"          
+        includeSecurityScans:
+          title: "Include Security scans?"
+          description: "Scan this app automatically and push results to Dynatrace?"
+          type: boolean
+          default: false
+        includeDTConfig:
+          title: "Include Dynatrace Configuration?"
+          description: "Include level 1 (basic) Dynatrace Configuration as Code for this application?"
+          type: boolean
+          default: false
+        # includeComponentB:
+        #   title: Include Component B
+        #   description: Whether to include files for Component B
+        #   type: boolean
+        #   default: false
+    # - title: Privacy Survey
+    #   properties:
+    #     privacySurvey:
+    #       type: object
+    #       ui:field: PrivacySurvey
+    # - title: Choose a location
+    #   required:
+    #     - repoUrl
+    #   properties:
+    #     repoUrl:
+    #       title: Repository Location
+    #       type: string
+    #       ui:field: RepoUrlPicker
+    #       ui:options:
+    #         allowedHosts:
+    #           - gitlab.BASE_DOMAIN_PLACEHOLDER
+    #         #requestUserCredentials:
+    #         #  secretsKey: USER_OAUTH_TOKEN
+  steps:
+    - id: fetch-base
+      name: Fetch Base
+      action: fetch:template
+      input:
+        url: "./${{ parameters.projectName }}-content"
+        targetPath: "./${{ parameters.projectName }}-content"
+        values:
+         projectName: ${{ parameters.projectName }}
+         teamIdentifier: ${{ parameters.teamIdentifier }}
+         teamFullName: ${{ parameters.teamFullName }}
+         teamEmail: ${{ parameters.teamEmail }}
+         appVersion: ${{ parameters.appVersion }}
+         releaseStage: ${{ parameters.releaseStage }}
+         doraEnabled: ${{ parameters.doraEnabled }}
+         includeSecurityScans: ${{ parameters.includeSecurityScans }}
+         includeDTConfig: ${{ parameters.includeDTConfig }}
+    # - id: publish-privacy-survey
+    #   name: Publish Privacy Survey
+    #   action: privacySurvey:publish
+    #   input:
+    #     survey: ${{ parameters.privacySurvey }}
+    # - id: rename-files
+    #   name: Rename Files
+    #   action: fs:rename
+    #   input:
+    #     files:
+    #       - from: to-be-renamed.txt
+    #         to: a-renamed-file.txt
+    - id: delete-security-scan-files
+      name: Delete security scan files
+      if: ${{ parameters.includeSecurityScans === false }}
+      action: fs:delete
+      input:
+        files:
+          - "./${{ parameters.projectName }}-content/argoapp/securityScanJob.yml"
+    - id: delete-monaco-files
+      name: Delete DT Configuration Files
+      if: ${{ parameters.includeDTConfig === false }}
+      action: fs:delete
+      input:
+        files:
+          - "./${{ parameters.projectName }}-content/monaco"
+          - "./${{ parameters.projectName}}-content/argoapp/workflow-post-sync-apply-monaco.yml"
+    # - id: debug
+    #   name: List workspace
+    #   action: debug:log
+    #   input:
+    #     listWorkspace: true
+    #     securityScans: ${{ parameters.includeSecurityScans }}
+    #     projectName: "./${{ parameters.projectName }}-template"
+    - id: publish
+      action: publish:gitlab
+      name: Publish to GitLab
+      input:
+        repoUrl: "https://gitlab.BASE_DOMAIN_PLACEHOLDER?repo=${{ parameters.projectName }}-${{ parameters.teamIdentifier }}-${{ parameters.releaseStage }}-cd&owner=group1"
+        sourcePath: "./${{ parameters.projectName }}-content"
+        repoVisibility: 'public'
+        defaultBranch: 'main'
+        gitAuthorName: ${{ parameters.teamIdentifier }}
+        gitAuthorEmail: "${{ parameters.teamIdentifier }}@dynatrace.training"
+        gitCommitMessage: "Initial commit from ${{ parameters.teamIdentifier }} for template ${{ parameters.projectName }} in ${{ parameters.releaseStage }}"
+        topics: ["${{ parameters.projectName }}", "${{ parameters.releaseStage }}", "${{ parameters.teamIdentifier }}", "from-template", "backstage" ]
+    - id: catalog
+      name: Register to Catalog
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
+        optional: true
+  output:
+    links:
+      - title: View on Gitlab
+        url: ${{ steps.publish.output.remoteUrl }}
+      - title: View in Catalog
+        icon: catalog
+        entityRef: ${{ steps.catalog.output.entityRef }}
+      - title: View in ArgoCD
+        icon: catalog
+        url: https://argo.BASE_DOMAIN_PLACEHOLDER/applications/argocd/${{ parameters.projectName }}-${{ parameters.teamIdentifier }}-${{ parameters.releaseStage }}-cd
+      - title: View in Dynatrace
+        icon: catalog
+        url: DT_TENANT_APPS_PLACEHOLDER/

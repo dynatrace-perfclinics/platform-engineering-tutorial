@@ -14,7 +14,7 @@ spec:
       chart: klt
       # helm:
       #   values: |
-    - repoURL: 'GITHUB_REPO_PLACEHOLDER'
+    - repoURL: 'https://github.com/agardnerit/test123.git'
       targetRevision: main
       path: "gitops/manifests/platform/keptn"
   destination:
@@ -31,5 +31,3 @@ spec:
         duration: 5s
         maxDuration: 3m0s
         factor: 2
-    syncOptions:
-      - CreateNamespace=true

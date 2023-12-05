@@ -5,7 +5,7 @@ metadata:
     argocd.argoproj.io/sync-wave: "3"
   labels:
     dt.owner: "platform_team"
-  name: argo-workflows
+  name: workflows
   namespace: argocd
 spec:
   sources:

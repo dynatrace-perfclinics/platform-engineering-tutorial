@@ -3,7 +3,7 @@ configs:
   config:
     name: kubernetes-monitoring-settings
     template: config.json
-    skip: false
+    skip: true
     parameters:
       cloudApplicationPipelineEnabled: true
       pvcMonitoringEnabled: false

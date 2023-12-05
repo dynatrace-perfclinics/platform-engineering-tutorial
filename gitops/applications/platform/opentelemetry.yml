@@ -9,7 +9,7 @@ metadata:
   namespace: argocd
 spec:
   sources:
-    - repoURL: 'GITHUB_REPO_PLACEHOLDER'
+    - repoURL: 'https://github.com/agardnerit/test123.git'
       targetRevision: main
       path: "gitops/manifests/platform/opentelemetry"
     - repoURL: 'https://open-telemetry.github.io/opentelemetry-helm-charts'
@@ -47,7 +47,7 @@ spec:
                     endpoint: "0.0.0.0:4318"
             exporters:
               otlphttp:
-                endpoint: "$DT_TENANT_LIVE_PLACEHOLDER/api/v2/otlp"
+                endpoint: "$DT_URL/api/v2/otlp"
                 headers:
                   Authorization: "Api-Token $DT_OTEL_ALL_INGEST_TOKEN"
             service:

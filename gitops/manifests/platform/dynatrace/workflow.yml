@@ -7,7 +7,7 @@ metadata:
     workflows.argoproj.io/archive-strategy: "false"
   annotations:
     workflows.argoproj.io/description: |
-      This is a simple hello world example which fires on postsync.
+      Workflow triggers after DT install to configure DT platform for the base IDP
     argocd.argoproj.io/hook: PostSync
     argocd.argoproj.io/hook-delete-policy: HookSucceeded
 spec:
@@ -19,13 +19,13 @@ spec:
       - name: git-files
         path: /src
         git:
-          repo: GITHUB_REPO_PLACEHOLDER
+          repo: https://github.com/agardnerit/test123.git
     container:
       image: dynatrace/dynatrace-configuration-as-code:latest
       args: [
         "deploy",
         "--project",
-        "configure-dt",
+        "configure-platform",
         "/src/monaco/manifest.yml",
         "--environment",
         "prod-api-token-only"
