@@ -4,7 +4,7 @@
 
 ## Step 1: FORK or USE CASE TEMPLATE to create a new training class repository!
 
-This repositor contains K8s CRDs that defines the core platform for each training class. Its our "Core Platform GitOps Repo" that contains ArgoCD Applications allowing ArgoCD to deploy Backstage, GitLab, OpenTelemetry, Keptn, Dynatrace and more ...
+This repository contains K8s CRDs that defines the core platform for each training class. Its our "Core Platform GitOps Repo" that contains ArgoCD Applications allowing ArgoCD to deploy Backstage, GitLab, OpenTelemetry, Keptn, Dynatrace and more ...
 
 Every training class environment therefore needs its own unique copy of this repo as it will also include the unique domain name definitions.
 
@@ -14,9 +14,15 @@ Once you have your own version of this repository continue with the next steps!
 
 ## Step 2: Replace GitHub Repo references in Platform CRDs
 
+
+First, create a GitHub PAT with `Contents` `read` & `write` permissions. You can limit this to the single repo if you want.
+
 Some of the files we just cloned are pointing to other files in our GitHub repo. To point to our just cloned repository we need to do this
 
 ```
+export YOUR_GITHUB_EMAIL=YOUREMAIL
+export YOUR_GITHUB_USERNAME=YOURGITHUBUSERNAME
+export YOUR_GITHUB_PAT=YOURGITHUBPAT                 # e.g: github_pat_*******
 export FORKED_GITHUB_ORGNAME=YOURORG    # e.g: dtu-engineering
 export FORKED_REPO_NAME=YOURREPONAME    # e.g: classroom1
 export FORKED_TEMPLATE_REPO="https://github.com/$FORKED_GITHUB_ORGNAME/$FORKED_REPO_NAME"
@@ -52,14 +58,17 @@ Execute this as-is:
 ```
 export DT_TENANT_LIVE="https://$DT_TENANT.live.dynatrace.com"
 export DT_TENANT_APPS="https://$DT_TENANT.apps.dynatrace.com"
-find . -type f -not -path '*/\.*' -exec sed -i "s#DT_TENANT_LIVE_PLACEHOLDER#$DT_TENANT_LIVE#g" {} +
-find . -type f -not -path '*/\.*' -exec sed -i "s#DT_TENANT_APPS_PLACEHOLDER#$DT_TENANT_APPS#g" {} +
-find . -type f -not -path '*/\.*' -exec sed -i "s#BASE_DOMAIN_PLACEHOLDER#$BASE_DOMAIN#g" {} +
-```
-
-Commit all changes:
+find . -type f \( -not -path '*/\.*' -not -iname "README.md" \) -exec sed -i "s#DT_TENANT_LIVE_PLACEHOLDER#$DT_TENANT_LIVE#g" {} +
+find . -type f \( -not -path '*/\.*' -not -iname "README.md" \) -exec sed -i "s#DT_TENANT_APPS_PLACEHOLDER#$DT_TENANT_APPS#g" {} +
+find . -type f \( -not -path '*/\.*' -not -iname "README.md" \) -exec sed -i "s#BASE_DOMAIN_PLACEHOLDER#$BASE_DOMAIN#g" {} +
 
 ```
+
+Commit all changes. When prompted for a password, use the GitHub PAT token.
+
+```
+git config --global user.email "$YOUR_GITHUB_EMAIL"
+git config --global user.name "$YOUR_GITHUB_USERNAME"
 git add -A
 git commit -m "Update URLs"
 git push
@@ -143,7 +152,7 @@ Create the token:
 ```
 DT_MONACO_TOKEN=dt0c01.******.*************; history -d $(history 1)
 kubectl create namespace monaco
-kubectl -n argocd create secret generic monaco-secret --from-literal=monacoToken=$DT_MONACO_TOKEN
+kubectl -n monaco create secret generic monaco-secret --from-literal=monacoToken=$DT_MONACO_TOKEN
 ```
 
 ### 3.4 Create an ArgoCD Notifications Token
@@ -152,7 +161,7 @@ We are using ArgoCD Notifications to send Events to Dynatrace using the Events A
 
 ```
 DT_NOTIFICATION_TOKEN=dt0c01.******.*************; history -d $(history 1)
-kubectl create namespace argocd
+kubectl create namespace monaco
 kubectl -n monaco create secret generic argocd-notifications-secret --from-literal=dynatrace-url=$DT_TENANT_LIVE --from-literal=dynatrace-token=$DT_NOTIFICATION_TOKEN
 ```
 
@@ -210,7 +219,7 @@ kubectl -n opentelemetry create secret generic dt-bizevent-oauth-details --from-
 ArgoCD is our central GitOps Operator that deploys our Core Platform Components (taken from this repository) as well as will deploy custom apps that attendees will create during the class room hands-on tutorials!
 
 ```
-kubectl create namespace argocd
+kubectl create ns argocd
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 ```
 
@@ -237,6 +246,13 @@ Password: `see above`
 Go to `http://localhost:8080` and log in to Argo.
 
 The UI should show "No Applications".
+
+You can also do:
+
+```
+kubectl config set-context --current --namespace=argocd
+argocd app list
+```
 
 ## Step 5: Apply Platform Apps: GitLab, Dynatrace, Backstage, ...
 
