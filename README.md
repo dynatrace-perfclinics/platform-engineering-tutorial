@@ -6,7 +6,7 @@
 
 The original repository is https://github.com/dynatrace-perfclinics/platform-engineering-tutorial!
 
-If you plan to run a workshop then we suggest to create your own fork or copy (by using this as a template) repository and then replace all the XX_PLACEHOLDERS in your reposotiry to point to your Dynatrace Tenants and your BASEDOMAIN (E.g: *.classroom.yourdomain.com)
+If you plan to run a workshop then we suggest to create your own fork or copy (by using this as a template) repository and then replace all the XX_PLACEHOLDERS in your reposotiry to point to your Dynatrace Tenants and your BASE_DOMAIN (E.g: *.classroom.yourdomain.com)
 
 If you intend to run multiple class rooms - like we did at Perform 2024 HOTDAYS - then the best is to create multiple copies of the `gitops` folder, e.g: `gitops_class1`, `gitops_class2` ... and then replace all the PLACEHOLDERS for each class room. This allows you to have a single "Core Platform GitOps Repo" containing all CRDs for your individual Platforms
 
@@ -240,8 +240,8 @@ kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/st
 In order for Argo to be accessible via the Ingress we need to do two things: apply a config map to tell it about allow unsecure traffic behind the ingress - and - the ingress itself.
 
 ```
-kubectl apply -n argocd -f $FORKED_REPO_GITOPS_CLASSROOMID/manifests/platform/argoconfig/argo.ingress.yaml
-kubectl apply -n argocd -f $FORKED_REPO_GITOPS_CLASSROOMID/manifests/platform/argoconfig/argocd-cmd-params-cm.yaml
+kubectl apply -n argocd -f $FORKED_REPO_GITOPS_CLASSROOMID/manifests/platform/argoconfig/argo.ingress.yml
+kubectl apply -n argocd -f $FORKED_REPO_GITOPS_CLASSROOMID/manifests/platform/argoconfig/argocd-cmd-params-cm.yml
 ```
 
 Last but not least - we need to restart the argo-server pod to pickup the new ConfigMap
@@ -300,16 +300,16 @@ This step is needed because otherwise GitLab will return http:// address when Ba
 There is a setting we need to change in the GitLab UI
 
 1. Log into GitLab
-2. Go to `https://gitlab.$BASEDOMAIN/admin/application_settings/general`
-3. Change the "Custom Git clone URL for HTTP(S)" from `http://gitlab.xxxxx` to `https://gitlab.$BASEDOMAIN`
+2. Go to `https://gitlab.$BASE_DOMAIN/admin/application_settings/general`
+3. Change the "Custom Git clone URL for HTTP(S)" from `http://gitlab.xxxxx` to `https://gitlab.$BASE_DOMAIN`
 
 ### 5.2 Create Personal Access Token (PAT)
 
 In order for tools like Backstage to interact with GitLab we need a PAT.
 
 1. Log into Gitlab
-2. Go to your user profile `https://gitlab.$BASEDOMAIN-/profile/personal_access_tokens`
-3. Create a PAT with `api, read_repository, write_repository`
+2. Go to your user profile `https://gitlab.$BASE_DOMAIN/-/profile/personal_access_tokens`
+3. Create a PAT with `api, read_api, read_repository, write_repository`
 
 ### 5.3 Initialize GitLab with template repositories
 
@@ -399,7 +399,7 @@ kubectl config set-context --current --namespace=argocd
 ARGOCD_TOKEN="argocd.token=$(argocd account generate-token --account alice)"
 # Reset the context to 'default' namespace
 kubectl config set-context --current --namespace=default 
-kubectl -n backstage create secret generic backstage-secrets --from-literal=GITLAB_TOKEN=$GL_PAT --from-literal=ARGOCD_TOKEN=$ARGOCD_TOKEN
+kubectl -n backstage create secret generic backstage-secrets --from-literal=GITLAB_TOKEN=$GL_PAT --from-literal=ARGOCD_TOKEN=$ARGOCD_TOKEN --from-literal=DT_TENANT_LIVE=$DT_TENANT_LIVE --from-literal=DT_EVENT_INGEST_TOKEN=$DT_NOTIFICATION_TOKEN
 ```
 
 ## Step 7: Recap
@@ -423,15 +423,15 @@ By now, you should see 12 applications in ArgoCD:
 
 You should be able to get all your credentials you need through this:
 ```
-GITLABURL=https://gitlab.$BASEDOMAIN
+GITLABURL=https://gitlab.$BASE_DOMAIN
 GITLABUSER=root
 GITLABPWD=$(kubectl -n gitlab get secret gitlab-gitlab-initial-root-password -ojsonpath='{.data.password}' | base64 --decode)
 
-ARGOCDURL=https://argocd.$BASEDOMAIN
+ARGOCDURL=https://argocd.$BASE_DOMAIN
 ARGOCDUSER=admin
 ARGOCDPWD=$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
 
-BACKSTAGEURL=https://backstage.$BASEDOMAIN
+BACKSTAGEURL=https://backstage.$BASE_DOMAIN
 
 echo "-------------------------------------------------------------"
 echo "GitLab:    $GITLABURL"

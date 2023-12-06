@@ -124,7 +124,7 @@ data:
     proxy:
       endpoints:
         '/dteventingest':
-          target: "DT_TENANT_LIVE_PLACEHOLDER/api/v2/events/ingest"
+          target: "${DT_TENANT_LIVE}/api/v2/events/ingest"
           method: "POST"
           headers:
             Content-Type: "application/json; charset=utf-8"
