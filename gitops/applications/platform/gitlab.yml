@@ -11,7 +11,7 @@ spec:
   sources:
     - repoURL: 'FORKED_TEMPLATE_REPO_PLACEHOLDER.git'
       targetRevision: main
-      path: "gitops/manifests/platform/gitlab"
+      path: "FORKED_REPO_GITOPS_CLASSROOMID_PLACEHOLDER/manifests/platform/gitlab"
     - repoURL: 'https://charts.gitlab.io'
       targetRevision: 7.5.2
       chart: gitlab

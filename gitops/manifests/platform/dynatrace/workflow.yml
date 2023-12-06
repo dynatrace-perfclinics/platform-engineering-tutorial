@@ -26,7 +26,7 @@ spec:
         "deploy",
         "--project",
         "configure-platform",
-        "/src/monaco/manifest.yml",
+        "/src/FORKED_REPO_GITOPS_CLASSROOMID_PLACEHOLDER/monaco/manifest.yml",
         "--environment",
         "prod-api-token-only"
       ]

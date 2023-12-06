@@ -16,12 +16,14 @@ spec:
       #   values: |
     - repoURL: 'FORKED_TEMPLATE_REPO_PLACEHOLDER.git'
       targetRevision: main
-      path: "gitops/manifests/platform/keptn"
+      path: "FORKED_REPO_GITOPS_CLASSROOMID_PLACEHOLDER/manifests/platform/keptn"
   destination:
     namespace: keptn
     server: 'https://kubernetes.default.svc'
   project: default
   syncPolicy:
+    syncOptions:
+      - CreateNamespace=true  
     automated:
       prune: true
       selfHeal: true

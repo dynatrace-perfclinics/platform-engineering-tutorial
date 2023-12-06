@@ -13,3 +13,5 @@ data:
   accounts.alice.enabled: "true"
   # Enables application status badge feature
   statusbadge.enabled: "true"
+  context: |
+    argocdUrl: "https://argo.BASE_DOMAIN_PLACEHOLDER"    

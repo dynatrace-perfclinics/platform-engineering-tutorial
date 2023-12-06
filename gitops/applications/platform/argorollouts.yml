@@ -11,7 +11,7 @@ spec:
   source:
     repoURL: 'FORKED_TEMPLATE_REPO_PLACEHOLDER.git'
     targetRevision: main
-    path: "gitops/manifests/platform/argo-rollouts"
+    path: "FORKED_REPO_GITOPS_CLASSROOMID_PLACEHOLDER/manifests/platform/argo-rollouts"
   destination:
     namespace: argo-rollouts
     server: 'https://kubernetes.default.svc'

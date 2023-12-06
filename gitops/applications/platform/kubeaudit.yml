@@ -11,7 +11,7 @@ spec:
   sources:
     - repoURL: 'FORKED_TEMPLATE_REPO_PLACEHOLDER.git'
       targetRevision: main
-      path: "gitops/manifests/platform/kubeaudit"
+      path: "FORKED_REPO_GITOPS_CLASSROOMID_PLACEHOLDER/manifests/platform/kubeaudit"
   destination:
     namespace: kubeaudit
     server: 'https://kubernetes.default.svc'

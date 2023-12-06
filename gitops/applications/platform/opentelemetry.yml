@@ -11,7 +11,7 @@ spec:
   sources:
     - repoURL: 'FORKED_TEMPLATE_REPO_PLACEHOLDER.git'
       targetRevision: main
-      path: "gitops/manifests/platform/opentelemetry"
+      path: "FORKED_REPO_GITOPS_CLASSROOMID_PLACEHOLDER/manifests/platform/opentelemetry"
     - repoURL: 'https://open-telemetry.github.io/opentelemetry-helm-charts'
       targetRevision: 0.71.0
       chart: opentelemetry-collector
