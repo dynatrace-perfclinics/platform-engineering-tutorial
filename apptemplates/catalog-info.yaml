@@ -166,7 +166,7 @@ spec:
       action: publish:gitlab
       name: Publish to GitLab
       input:
-        repoUrl: "https://gitlab.BASE_DOMAIN_PLACEHOLDER?repo=${{ parameters.projectName }}-${{ parameters.teamIdentifier }}-${{ parameters.releaseStage }}-cd&owner=group1"
+        repoUrl: "gitlab.BASE_DOMAIN_PLACEHOLDER?repo=${{ parameters.projectName }}-${{ parameters.teamIdentifier }}-${{ parameters.releaseStage }}-cd&owner=group1"
         sourcePath: "./${{ parameters.projectName }}-content"
         repoVisibility: 'public'
         defaultBranch: 'main'
