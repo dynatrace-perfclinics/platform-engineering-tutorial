@@ -12,6 +12,9 @@ If you intend to run multiple class rooms - like we did at Perform 2024 HOTDAYS 
 
 ### Step 0.1: Replace GitHub Repo references in Platform CRDs
 
+
+First, create a GitHub PAT with `Contents` `read` & `write` permissions. You can limit this to the single repo if you want.
+
 Some of the files we just cloned are pointing to other files in our GitHub repo. To point to our just cloned repository we need to do this
 
 ```
@@ -173,7 +176,7 @@ We are using ArgoCD Notifications to send Events to Dynatrace using the Events A
 
 ```
 DT_NOTIFICATION_TOKEN=dt0c01.******.*************; history -d $(history 1)
-kubectl create namespace argocd
+kubectl create namespace monaco
 kubectl -n monaco create secret generic argocd-notifications-secret --from-literal=dynatrace-url=$DT_TENANT_LIVE --from-literal=dynatrace-token=$DT_NOTIFICATION_TOKEN
 ```
 
