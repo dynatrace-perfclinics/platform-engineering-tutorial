@@ -194,7 +194,15 @@ spec:
           "--account_urn",
           "$(ACCOUNT_URN)",
           "--payload",
-          "{ \"event.provider\": \"argocd\", \"event.type\": \"sync.finished\", \"app_name\": \"${{ values.projectName }}-${{ values.teamIdentifier }}-${{ values.releaseStage }}\", \"owner\":\"${{ values.teamIdentifier }}\", \"result\": \"failed\" }"
+          "{ \"event.provider\": \"argocd\", \"event.type\": \"sync.finished\", 
+             \"app_name\": \"${{ values.projectName }}-${{ values.teamIdentifier }}\",
+             \"proj_name\": \"${{ values.projectName }}\",
+             \"stage\": \"${{ values.releaseStage }}\", 
+             \"owner\":\"${{ values.teamIdentifier }}\", 
+             \"git\" : \"https://gitlab.BASE_DOMAIN_PLACEHOLDER/group1/${{ values.projectName }}-${{ values.teamIdentifier }}-${{ values.releaseStage }}-cd\",
+             \"argocd\" : \"https://argo.BASE_DOMAIN_PLACEHOLDER/applications/argocd/${{ values.projectName }}-${{ values.teamIdentifier }}-${{ values.releaseStage }}-cd\",
+             \"result\": \"failed\" 
+          }"          
         ]
         env:
         - name: TENANT_URL
