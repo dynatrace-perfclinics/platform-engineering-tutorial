@@ -6,14 +6,11 @@
 
 The original repository is https://github.com/dynatrace-perfclinics/platform-engineering-tutorial!
 
-If you plan to run a workshop then we suggest to create your own fork or copy (by using this as a template) repository and then replace all the XX_PLACEHOLDERS in your reposotiry to point to your Dynatrace Tenants and your BASE_DOMAIN (E.g: *.classroom.yourdomain.com)
+If you plan to run a workshop then we suggest to create your own fork or copy (by using this as a template) repository and then replace all the XX_PLACEHOLDERS in your repository to point to your Dynatrace Tenants and your BASE_DOMAIN (E.g: *.classroom.yourdomain.com)
 
 If you intend to run multiple class rooms - like we did at Perform 2024 HOTDAYS - then the best is to create multiple copies of the `gitops` folder, e.g: `gitops_class1`, `gitops_class2` ... and then replace all the PLACEHOLDERS for each class room. This allows you to have a single "Core Platform GitOps Repo" containing all CRDs for your individual Platforms
 
 ### Step 0.1: Replace GitHub Repo references in Platform CRDs
-
-
-First, create a GitHub PAT with `Contents` `read` & `write` permissions. You can limit this to the single repo if you want.
 
 Some of the files we just cloned are pointing to other files in our GitHub repo. To point to our just cloned repository we need to do this
 
@@ -21,7 +18,7 @@ Some of the files we just cloned are pointing to other files in our GitHub repo.
 # These are the details of your Dynatrace Tenant, BASE-Domain & GEOLOCATION for Synthetics (they differ between prod and sprint tenants!)
 export DT_TENANT="abc12345"
 export BASE_DOMAIN="SOMEVALUE.dynatrace.training"
-export DT_GEOLOCATION=GEOLOCATION_XXXXXXX     # eg: GEOLOCATION-DDAA176627F5667A for prod live
+export DT_GEOLOCATION=GEOLOCATION-XXXXXXX     # eg: GEOLOCATION-DDAA176627F5667A for prod live
 export DT_TENANT_LIVE="https://$DT_TENANT.sprint.dynatracelabs.com"           # BEAWARE OF .sprint.dynatrace.labs vs .dynatrace.com
 export DT_TENANT_APPS="https://$DT_TENANT.sprint.apps.dynatracelabs.com"
 
@@ -32,11 +29,12 @@ export FORKED_REPO_GITOPS_CLASSROOMID=gitops_dryrun
 export FORKED_TEMPLATE_REPO="https://github.com/$FORKED_GITHUB_ORGNAME/$FORKED_REPO_NAME"
 
 # Clone the template files locally
+cd
 git clone $FORKED_TEMPLATE_REPO
 cd $FORKED_REPO_NAME/$FORKED_REPO_GITOPS_CLASSROOMID
 
 # Now lets replace the placeholders
-find . -type f \( -not -path '*/\.*' -not -iname "README.md" \) -exec sed -i "s#DT_GEOLOCATION_PLACEHOLDER#$DT_GEOLOCATION#g" {} +
+find . -type f \( -not -path '*/\.*' -not -iname "README.md" \) -exec sed -i "s#GEOLOCATION_PLACEHOLDER#$DT_GEOLOCATION#g" {} +
 find . -type f \( -not -path '*/\.*' -not -iname "README.md" \) -exec sed -i "s#DT_TENANT_LIVE_PLACEHOLDER#$DT_TENANT_LIVE#g" {} +
 find . -type f \( -not -path '*/\.*' -not -iname "README.md" \) -exec sed -i "s#DT_TENANT_APPS_PLACEHOLDER#$DT_TENANT_APPS#g" {} +
 find . -type f \( -not -path '*/\.*' -not -iname "README.md" \) -exec sed -i "s#BASE_DOMAIN_PLACEHOLDER#$BASE_DOMAIN#g" {} +
@@ -77,7 +75,7 @@ export DT_TENANT="abc12345"
 export BASE_DOMAIN="SOMEVALUE.dynatrace.training"
 export DT_TENANT_LIVE="https://$DT_TENANT.sprint.dynatracelabs.com"
 export DT_TENANT_APPS="https://$DT_TENANT.sprint.apps.dynatracelabs.com"
-export DT_GEOLOCATION=GEOLOCATION_XXXXXXX     # eg: GEOLOCATION-DDAA176627F5667A for prod live
+export DT_GEOLOCATION=GEOLOCATION-XXXXXXX     # eg: GEOLOCATION-DDAA176627F5667A for prod live
 ```
 
 In Step 2 we are going to create lots of tokens. IN case you already have them - here a quick overview to set them:
@@ -168,6 +166,7 @@ Create the token:
 DT_MONACO_TOKEN=dt0c01.******.*************; history -d $(history 1)
 kubectl create namespace monaco
 kubectl -n monaco create secret generic monaco-secret --from-literal=monacoToken=$DT_MONACO_TOKEN
+kubectl -n dynatrace create secret generic monaco-secret --from-literal=monacoToken=$DT_MONACO_TOKEN
 ```
 
 ### 2.4 Create an ArgoCD Notifications Token
@@ -176,7 +175,7 @@ We are using ArgoCD Notifications to send Events to Dynatrace using the Events A
 
 ```
 DT_NOTIFICATION_TOKEN=dt0c01.******.*************; history -d $(history 1)
-kubectl create namespace monaco
+kubectl create namespace argocd
 kubectl -n monaco create secret generic argocd-notifications-secret --from-literal=dynatrace-url=$DT_TENANT_LIVE --from-literal=dynatrace-token=$DT_NOTIFICATION_TOKEN
 ```
 
@@ -196,7 +195,7 @@ You should now have 3 pieces of information:
 
 1. `oAuth Client ID`: `dt0s02.1234ABCD`
 2. `oAuth Client Secret`: `dt0s02.1234ABCD.*********`
-3. `DT Account URN`: urn:dtaccount:********-****-****-****-************`
+3. `DT Account URN`: `urn:dtaccount:********-****-****-****-************`
 
 These details will be used to send Dynatrace bizevents for different applications in various namespaces.
 
@@ -271,6 +270,8 @@ Now its time to tell ArgoCD to install all our platform components. For that we 
 kubectl apply -f $FORKED_REPO_GITOPS_CLASSROOMID/platform.yml
 ```
 
+Expect `argo-config` to be "Degraded" due to the `customer-apps` AppSet. This is fine because we haven't configured Gitlab yet, so it is safe to ignore this error for now.
+
 ## Step 4.1: In case ArgoCD needs the Ingress Controller installed via the Platform we can now log in
 
 We should now definitely be able to login as we also installed our own nginx-ingress controller
@@ -294,24 +295,15 @@ echo "GitLab user: root"
 echo "GitLab pwd: $GITLABPWD"
 ```
 
-### 5.1 Set HTTPS Clone access
-
-This step is needed because otherwise GitLab will return http:// address when Backstage creates new GitLab repositories which will then fail at a later stage.
-There is a setting we need to change in the GitLab UI
-
-1. Log into GitLab
-2. Go to `https://gitlab.$BASE_DOMAIN/admin/application_settings/general`
-3. Change the "Custom Git clone URL for HTTP(S)" from `http://gitlab.xxxxx` to `https://gitlab.$BASE_DOMAIN`
-
-### 5.2 Create Personal Access Token (PAT)
+### 5.1 Create Personal Access Token (PAT)
 
 In order for tools like Backstage to interact with GitLab we need a PAT.
 
 1. Log into Gitlab
 2. Go to your user profile `https://gitlab.$BASE_DOMAIN/-/profile/personal_access_tokens`
-3. Create a PAT with `api, read_api, read_repository, write_repository`
+3. Create a PAT with `api`, `read_repository` and `write_repository`
 
-### 5.3 Initialize GitLab with template repositories
+### 5.2 Initialize GitLab with template repositories
 
 When you have a Personal Access Token (PAT), configure this:
 ```
@@ -328,13 +320,24 @@ export DT_TENANT="abc12345"
 export BASE_DOMAIN="SOMEVALUE.dynatrace.training"
 export DT_TENANT_LIVE="https://$DT_TENANT.sprint.dynatracelabs.com"
 export DT_TENANT_APPS="https://$DT_TENANT.sprint.apps.dynatracelabs.com"
-
+export DT_GEOLOCATION=GEOLOCATION-XXXXXXX     # eg: GEOLOCATION-DDAA176627F5667A for prod live
 
 export GIT_USER="root"
 export GIT_PWD="$GL_PAT"
 export GIT_EMAIL="admin@example.com"
 export GIT_REPO_BACKSTAGE_TEMPLATES_TEMPLATE_NAME="backstage-templates"
 export GIT_REPO_APP_TEMPLATES_TEMPLATE_NAME="applications-template"
+
+# 1) disable signups for security
+# 2) set clone URL to https:// not http:// for backstage
+# 3) disable the warning about ssh keys (all repos are public anyway)
+# 4) disable "auto devops" pipeline and UI info box
+curl --request PUT --header "PRIVATE-TOKEN: $GL_PAT" "https://gitlab.$BASE_DOMAIN/api/v4/application/settings?signup_enabled=false&custom_http_clone_url_root=https://gitlab.$BASE_DOMAIN/&user_show_add_ssh_key_message=false&auto_devops_enabled=false"
+
+# Create 'group1'
+# This group is where the backstage bootstrap process will create the "app teams" projects
+# TODO: Rename to something more logical like "projects" or "teamprojects"
+curl -X POST -d '{ "name": "group1", "path": "group1", "visibility": "public" }' -H "Content-Type: application/json" -H "PRIVATE-TOKEN: $GL_PAT" "https://gitlab.$BASE_DOMAIN/api/v4/groups"
 
 # Create empty template repo for backstage templates
 curl -X POST -d '{"name": "'$GIT_REPO_BACKSTAGE_TEMPLATES_TEMPLATE_NAME'", "initialize_with_readme": true, "visibility": "public"}' -H "Content-Type: application/json" -H "PRIVATE-TOKEN: $GL_PAT" "https://gitlab.$BASE_DOMAIN/api/v4/projects"
@@ -354,12 +357,12 @@ git clone https://gitlab.$BASE_DOMAIN/$GIT_USER/$GIT_REPO_APP_TEMPLATES_TEMPLATE
 # Copy files from template for backstage templates repo
 # Then replace the placeholders
 # Then commit and push files
-cp -R $FORKED_TEMPLATE_REPO/backstage-templates ./$GIT_REPO_BACKSTAGE_TEMPLATES_TEMPLATE_NAME
+cp -R $FORKED_REPO_NAME/backstagetemplates/* ./$GIT_REPO_BACKSTAGE_TEMPLATES_TEMPLATE_NAME
 cd ./$GIT_REPO_BACKSTAGE_TEMPLATES_TEMPLATE_NAME
 find . -type f \( -not -path '*/\.*' -not -iname "README.md" \) -exec sed -i "s#DT_TENANT_LIVE_PLACEHOLDER#$DT_TENANT_LIVE#g" {} +
 find . -type f \( -not -path '*/\.*' -not -iname "README.md" \) -exec sed -i "s#DT_TENANT_APPS_PLACEHOLDER#$DT_TENANT_APPS#g" {} +
 find . -type f \( -not -path '*/\.*' -not -iname "README.md" \) -exec sed -i "s#BASE_DOMAIN_PLACEHOLDER#$BASE_DOMAIN#g" {} +
-find . -type f \( -not -path '*/\.*' -not -iname "README.md" \) -exec sed -i "s#DT_GEOLOCATION_PLACEHOLDER#$DT_GEOLOCATION#g" {} +
+find . -type f \( -not -path '*/\.*' -not -iname "README.md" \) -exec sed -i "s#GEOLOCATION_PLACEHOLDER#$DT_GEOLOCATION#g" {} +
 
 git add -A
 git commit -m "initial commit"
@@ -367,39 +370,55 @@ git push https://$GIT_USER:$GIT_PWD@gitlab.$BASE_DOMAIN/$GIT_USER/$GIT_REPO_BACK
 
 # Copy files from app template, then replace the placeholders, then commit
 cd
-cp -R $FORKED_TEMPLATE_REPO/apptemplates ./$GIT_REPO_APP_TEMPLATES_TEMPLATE_NAME
+cp -R $FORKED_REPO_NAME/apptemplates/* ./$GIT_REPO_APP_TEMPLATES_TEMPLATE_NAME
 cd ./$GIT_REPO_APP_TEMPLATES_TEMPLATE_NAME
 find . -type f \( -not -path '*/\.*' -not -iname "README.md" \) -exec sed -i "s#DT_TENANT_LIVE_PLACEHOLDER#$DT_TENANT_LIVE#g" {} +
 find . -type f \( -not -path '*/\.*' -not -iname "README.md" \) -exec sed -i "s#DT_TENANT_APPS_PLACEHOLDER#$DT_TENANT_APPS#g" {} +
 find . -type f \( -not -path '*/\.*' -not -iname "README.md" \) -exec sed -i "s#BASE_DOMAIN_PLACEHOLDER#$BASE_DOMAIN#g" {} +
-find . -type f \( -not -path '*/\.*' -not -iname "README.md" \) -exec sed -i "s#DT_GEOLOCATION_PLACEHOLDER#$DT_GEOLOCATION#g" {} +
+find . -type f \( -not -path '*/\.*' -not -iname "README.md" \) -exec sed -i "s#GEOLOCATION_PLACEHOLDER#$DT_GEOLOCATION#g" {} +
 
 git add -A
 git commit -m "initial commit"
 git push https://$GIT_USER:$GIT_PWD@gitlab.$BASE_DOMAIN/$GIT_USER/$GIT_REPO_APP_TEMPLATES_TEMPLATE_NAME.git
 # Done creating "backstage template" repo
 # Done creating "applications template" repo
-
-# Create 'group1'
-# This group is where the backstage bootstrap process will create the "app teams" projects
-# TODO: Rename to something more logical like "projects" or "teamprojects"
-curl -X POST -d '{ "name": "group1", "path": "group1", "visibility": "public" }' -H "Content-Type: application/json" -H "PRIVATE-TOKEN: $GL_PAT" "https://gitlab.$BASE_DOMAIN/api/v4/groups"
-
 ```
 
 ## Step 6: Configure Backstage
 
-When Argo is installed and all the platform apps are installed and happily green, configure a secret for Backstage:
+Configure a secret for Backstage:
 
 This is from the 'alice' user (see [argocd-cm.yml]($FORKED_REPO_GITOPS_CLASSROOMID/manifests/platform/argoconfig/argocd-cm.yml))
 
+The `argocd` CLI utility will be required:
 ```
+# Download the argocd CLI and authenticate
+wget -O argocd https://github.com/argoproj/argo-cd/releases/download/v2.9.3/argocd-linux-amd64
+chmod +x argocd
+sudo mv argocd /usr/bin
+
 # Set the default context to the argocd namespace so 'argocd' CLI works
 kubectl config set-context --current --namespace=argocd
+# Now authenticate
+argocd login argo --core
+
+# Set the default context to the argocd namespace so 'argocd' CLI works
 ARGOCD_TOKEN="argocd.token=$(argocd account generate-token --account alice)"
 # Reset the context to 'default' namespace
 kubectl config set-context --current --namespace=default 
 kubectl -n backstage create secret generic backstage-secrets --from-literal=GITLAB_TOKEN=$GL_PAT --from-literal=ARGOCD_TOKEN=$ARGOCD_TOKEN --from-literal=DT_TENANT_LIVE=$DT_TENANT_LIVE --from-literal=DT_EVENT_INGEST_TOKEN=$DT_NOTIFICATION_TOKEN
+```
+
+`customer-apps` in `argoconfig` is still "degraded". This is an old error. Now that Gitlab is available, it will work. Delete the AppSet now and it will recreate and go green.
+
+### Important: Recycle Argo Application Set Controller
+the Argo ApplicationSet controller seems to stop working even after the link to Gitlab is fixed.
+
+Solve this by restarting the controller:
+
+```
+kubectl -n argocd scale deploy/argocd-applicationset-controller --replicas=0
+kubectl -n argocd scale deploy/argocd-applicationset-controller --replicas=1
 ```
 
 ## Step 7: Recap
@@ -438,9 +457,9 @@ echo "GitLab:    $GITLABURL"
 echo "User:      $GITLABUSER"
 echo "Pwd:       $GITLABPWD"
 echo "----"
-echo "ArgoCD:    $ARGOCDLABURL"
-echo "User:      $ARGOCDLABUSER"
-echo "Pwd:       $ARGOCDLABPWD"
+echo "ArgoCD:    $ARGOCDURL"
+echo "User:      $ARGOCDUSER"
+echo "Pwd:       $ARGOCDPWD"
 echo "----"
 echo "Backstage: $BACKSTAGEURL"
 echo "----"
@@ -455,3 +474,14 @@ echo "Dynatrace: $DT_TENANT_APPS"
 4. Create the application
 5. Visit argocd / backstage to see your app being deployed
 6. Visit Dynatrace to see everything being deployed
+
+## Troubleshooting
+
+### Argo is slow to create application
+Issue: An app is created in Backstage but is not appearing in Argo
+Workaround: Restart the ApplicationSet controller pod
+
+```
+kubectl -n argocd scale deploy/argocd-applicationset-controller --replicas=0
+kubectl -n argocd scale deploy/argocd-applicationset-controller --replicas=1
+```
