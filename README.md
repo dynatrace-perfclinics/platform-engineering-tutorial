@@ -2,6 +2,15 @@
 
 ** WORK IN PROGRESS ** - getting this ready for Dynatrace Perform 2024 HOT (Hands On Training) Days
 
+## End User Hands-On Tutorials
+
+All Tutorials can be found in the [Hands On](./handson/) folder
+* [Hands On 1: Explore the Platform we have built for you](./handson/handson1.md)
+* [Hands-On 2: Create a new Service, Deploy it, Explore with Dynatrace](./handson/handson2.md)
+* [Hands-On 3: Setting up an SRG (Site Reliability Guardian)](./handson/handson3.md)
+* [Hands-On 4: Deploy a new version of our app](./handson/handson4.md)
+* [Hands-On 5: Explore the Platform Observability Use Cases (WORK IN PROGRESS)](./handson/handson5.md)
+
 ## Step 0: Create a new Repository based on the Tutorial Repo
 
 The original repository is https://github.com/dynatrace-perfclinics/platform-engineering-tutorial!
