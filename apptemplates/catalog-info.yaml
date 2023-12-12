@@ -193,3 +193,85 @@ spec:
       - title: View in Dynatrace
         icon: catalog
         url: DT_TENANT_APPS_PLACEHOLDER/
+---
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: gather-feedback
+  title: Platform Feedback Form (22)
+  description: Help us improve this platform. Provide feedback here.
+  tags:
+    - platform
+    - feedback
+  links:
+    - url: https://www.example.com/platformteam
+      title: Platform Improvement Process
+      icon: docs
+spec:
+  owner: infrastructure
+  type: platform
+  parameters:
+    - title: Feedback Form
+      properties:
+        feedbackType:
+          title: Feedback Type
+          type: string
+          description: Which project would you like to deploy?
+          enum:
+            - 'improvement'
+            - 'feature'
+            - 'bug'
+            - 'praise'
+          enumNames:
+            - 'An existing platform feature could be improved...'
+            - 'The platform needs to do...'
+            - 'Help! Something is broken!'
+            - 'The platform is great. Just saying thanks!'
+          default: 'improvement'
+        userIdentifier:
+          title: Your Name (optional)
+          description: (optional) Your name
+          type: string
+          ui:placeholder: 'yourName'
+          default: 'testing'
+        feedback:
+          title: "Leave your feedback below"
+          type: string
+          ui:widget: textarea
+          ui:options:
+            rows: 10
+          default: "Talk to us..."
+        keepMeInformed:
+          title: "Stay informed of progress on this item?"
+          description: "Tick this box if you want email updates on this item to be sent from the platform team."
+          type: boolean
+          default: true
+  steps:
+    - id: send-event
+      name: Submit Feedback
+      action: http:backstage:request
+      input:
+        method: "POST"
+        # This proxy is set in app-config.production.yaml
+        # It should actually point to the bizevent ingest
+        # But I don't know how to use backstage + oAuth
+        # Q in #backstage: https://cloud-native.slack.com/archives/C01B5HYR2R3/p1701406188130209
+        #path: "/proxy/webhooksite"
+        path: "/proxy/dteventingest"
+        #path: "/notifications"
+        headers:
+          Content-Type: "application/json; charset=utf-8"
+        body: |
+          {
+            "eventType": "CUSTOM_INFO",
+            "properties": {
+              "type": "${{ parameters.feedbackType }}",
+              "user": "${{ parameters.userIdentifier }}",
+              "feedback": "${{ parameters.feedback }}",
+              "stay-informed": "${{ parameters.keepMeInformed }}",
+              "source": "backstage",
+              "template": "platform-feedback"
+            },
+            "timeout": 1,
+            "title": "ℹ️ Platform Feedback ℹ️"
+          }
