@@ -412,7 +412,7 @@ kubectl config set-context --current --namespace=argocd
 argocd login argo --core
 
 # Set the default context to the argocd namespace so 'argocd' CLI works
-ARGOCD_TOKEN="argocd.token=$(argocd account generate-token --account alice)"
+ARGOCD_TOKEN=$(argocd account generate-token --account alice)
 # Reset the context to 'default' namespace
 kubectl config set-context --current --namespace=default 
 kubectl -n backstage create secret generic backstage-secrets --from-literal=GITLAB_TOKEN=$GL_PAT --from-literal=ARGOCD_TOKEN=$ARGOCD_TOKEN --from-literal=DT_TENANT_LIVE=$DT_TENANT_LIVE --from-literal=DT_EVENT_INGEST_TOKEN=$DT_NOTIFICATION_TOKEN
