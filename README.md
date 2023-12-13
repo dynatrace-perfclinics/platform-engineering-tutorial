@@ -185,7 +185,7 @@ We are using ArgoCD Notifications to send Events to Dynatrace using the Events A
 ```
 DT_NOTIFICATION_TOKEN=dt0c01.******.*************; history -d $(history 1)
 kubectl create namespace argocd
-kubectl -n monaco create secret generic argocd-notifications-secret --from-literal=dynatrace-url=$DT_TENANT_LIVE --from-literal=dynatrace-token=$DT_NOTIFICATION_TOKEN
+kubectl -n argocd create secret generic argocd-notifications-secret --from-literal=dynatrace-url=$DT_TENANT_LIVE --from-literal=dynatrace-token=$DT_NOTIFICATION_TOKEN
 ```
 
 ### 2.5 Create Business Events Secrets
