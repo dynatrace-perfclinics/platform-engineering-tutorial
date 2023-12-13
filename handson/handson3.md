@@ -61,3 +61,31 @@ Lets therefore add a new HTTP Request task as shown below in the image. Here the
 ```
 
 ![](https://raw.githubusercontent.com/dynatrace-perfclinics/platform-engineering-tutorial/main/images/handson3_34_add_notifications_1.png)
+
+---
+
+### (Optional) Hands-On 3: Extending the Guardian with more objectives
+
+The power of Dynatrace is that we have all relevant data in Grail which makes it usable for the Site Reliability Guardian (SRG)
+In this optional Hands-On we can extend the guardian we just created with additional objectives such as
+1. Validate that there are no error logs
+2. Validate that response time is within a certain threshold
+3. Validate that there are no HTTP 5xx
+4. Validate that there are no security vulnerabilities
+5. Validate that memory and cpu usage is within expectations
+
+#### 3.5 Adding Error Log Objective
+
+We can easily add a new objective to validate whether we have any error logs. Our application creates error logs when 
+1. We `Invoke` passing a Server URL that is invalid, e.g: www.wrongdomain.abc
+2. We call the URL: `/api/causeerror`
+
+To create such an objective we should first define and test a DQL query that gives us the number of error logs created by our app. Once we have it we can add this query as an objective and specify a threshold that should not be higher than 0.
+
+To make it easier for you see the `Query Error Logs` DQL query below. Modify it by using your `team identifier`. Run it to make sure it works. Then update the Guardian!
+```
+fetch `logs`
+| filter contains(`k8s.pod.name`, "team02")
+| filter contains(content, "Error")
+| summarize errorCount=count()
+```

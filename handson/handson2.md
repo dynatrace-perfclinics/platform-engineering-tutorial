@@ -79,6 +79,15 @@ For this we can use Dynatrace Ownership, Dynatrace Synthetics and Dynatrace SLOs
 
 ![](https://raw.githubusercontent.com/dynatrace-perfclinics/platform-engineering-tutorial/main/images/handson2_24_configascode_1.png)
 
+#### Explore our App Yourself
+
+As you have seen - we have Dynatrace Synthetic Tests that are testing our application. Its time to also browse to our app as it is exposed via an Ingress to the internet. There are several ways we can find the URL
+1. We can take it from the Dynatrace Synthetic Test
+2. We can see it in ArgoCD
+3. We can get it from the Ingress Definition in GitLab
+
+![](https://raw.githubusercontent.com/dynatrace-perfclinics/platform-engineering-tutorial/main/images/handson2_24_exploreourapp_1.png.png)
+
 ---
 
 #### 2.5 How we make Dynatrace Lifecycle Event Aware!
