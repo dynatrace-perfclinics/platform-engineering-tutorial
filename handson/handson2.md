@@ -104,6 +104,10 @@ As of today we are suggesting that CI/CD tools use our BizEvents ingest API to m
 
 ![](https://raw.githubusercontent.com/dynatrace-perfclinics/platform-engineering-tutorial/main/images/handson2_22_lifecycleevents_1.png)
 
+Besides the BizEvents we can also use other events and ways to trigger events:
+
+![](https://raw.githubusercontent.com/dynatrace-perfclinics/platform-engineering-tutorial/main/images/handson2_22_lifecycleevents_2.png)
+
 Let's also have a closer look at the Workflow itself. You can view it by opening the Workflow App and Opening the `Lifecycle Event Workflow`
 
 ![](https://raw.githubusercontent.com/dynatrace-perfclinics/platform-engineering-tutorial/main/images/handson2_25_understandworkflow_1.png)
