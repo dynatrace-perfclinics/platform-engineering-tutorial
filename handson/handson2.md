@@ -86,7 +86,7 @@ As you have seen - we have Dynatrace Synthetic Tests that are testing our applic
 2. We can see it in ArgoCD
 3. We can get it from the Ingress Definition in GitLab
 
-![](https://raw.githubusercontent.com/dynatrace-perfclinics/platform-engineering-tutorial/main/images/handson2_24_exploreourapp_1.png.png)
+![](https://raw.githubusercontent.com/dynatrace-perfclinics/platform-engineering-tutorial/main/images/handson2_24_exploreourapp_1.png)
 
 ---
 
