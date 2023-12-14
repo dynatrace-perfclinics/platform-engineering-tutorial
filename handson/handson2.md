@@ -54,6 +54,12 @@ This folder contains Monaco definitions for SLOs, Ownership and Synthetic Tests.
 
 ---
 
+ArgoCD in the meantime has started to synchronize this new repository on GitLab with K8s:
+
+![](https://raw.githubusercontent.com/dynatrace-perfclinics/platform-engineering-tutorial/main/images/handson2_22_explore_argo_1.png)
+
+---
+
 #### 2.3 How we made Dynatrace Release Aware!
 
 The GitLab repository contains a lot of pre-populated meta data in the different CRDs. This meta data includes
