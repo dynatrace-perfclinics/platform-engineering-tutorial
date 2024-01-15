@@ -2,7 +2,7 @@ apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
   name: app-creator
-  title: Create a New Application (62)
+  title: Create a New Application
   description: Create a new application from a template
   tags:
     - simplenodeservice
@@ -198,7 +198,7 @@ apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
   name: gather-feedback
-  title: Platform Feedback Form (22)
+  title: Platform Feedback Form
   description: Help us improve this platform. Provide feedback here.
   tags:
     - platform
