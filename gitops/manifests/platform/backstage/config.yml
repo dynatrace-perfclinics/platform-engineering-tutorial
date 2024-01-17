@@ -129,3 +129,18 @@ data:
           headers:
             Content-Type: "application/json; charset=utf-8"
             Authorization: "Api-Token ${DT_EVENT_INGEST_TOKEN}"
+    dynatrace:
+      environments:
+        - name: ${DT_TENANT_NAME} # abc12345
+          url: ${DT_TENANT_APPS} # https://abc12345.sprint.apps.dynatracelabs.com
+          tokenUrl: https://sso-sprint.dynatracelabs.com/sso/oauth2/token
+          accountUrn: ${DT_ACCOUNT_URN}
+          clientId: ${DT_CLIENT_ID}
+          clientSecret: ${DT_CLIENT_SECRET}
+      queries:
+      - id: events
+        query: >
+          fetch logs
+          | filter contains(k8s.namespace.name, "simplenodeservice-team99-preprod")
+          | sort timestamp, direction:"descending"
+          | limit 10
