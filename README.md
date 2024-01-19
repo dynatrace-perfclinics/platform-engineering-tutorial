@@ -415,7 +415,16 @@ argocd login argo --core
 ARGOCD_TOKEN=$(argocd account generate-token --account alice)
 # Reset the context to 'default' namespace
 kubectl config set-context --current --namespace=default 
-kubectl -n backstage create secret generic backstage-secrets --from-literal=GITLAB_TOKEN=$GL_PAT --from-literal=ARGOCD_TOKEN=$ARGOCD_TOKEN --from-literal=DT_TENANT_LIVE=$DT_TENANT_LIVE --from-literal=DT_EVENT_INGEST_TOKEN=$DT_NOTIFICATION_TOKEN
+kubectl -n backstage create secret generic backstage-secrets \
+  --from-literal=GITLAB_TOKEN=$GL_PAT \
+  --from-literal=ARGOCD_TOKEN=$ARGOCD_TOKEN \
+  --from-literal=DT_TENANT_LIVE=$DT_TENANT_LIVE \
+  --from-literal=DT_TENANT_APPS=$DT_TENANT_APPS \
+  --from-literal=DT_EVENT_INGEST_TOKEN=$DT_NOTIFICATION_TOKEN \
+  --from-literal=DT_TENANT_NAME=$DT_TENANT \
+  --from-literal=DT_CLIENT_ID=$DT_OAUTH_CLIENT_ID \
+  --from-literal=DT_CLIENT_SECRET=$DT_OAUTH_CLIENT_SECRET \
+  --from-literal=DT_ACCOUNT_URN=$DT_ACCOUNT_URN
 ```
 
 `customer-apps` in `argoconfig` is still "degraded". This is an old error. Now that Gitlab is available, it will work. Delete the AppSet now and it will recreate and go green.

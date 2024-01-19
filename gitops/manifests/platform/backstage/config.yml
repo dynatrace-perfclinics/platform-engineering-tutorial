@@ -131,8 +131,8 @@ data:
             Authorization: "Api-Token ${DT_EVENT_INGEST_TOKEN}"
     dynatrace:
       environments:
-        - name: hotday
-          url: ${DT_TENANT_APPS}
+        - name: ${DT_TENANT_NAME} # abc12345
+          url: ${DT_TENANT_APPS} # https://abc12345.sprint.apps.dynatracelabs.com
           tokenUrl: https://sso-sprint.dynatracelabs.com/sso/oauth2/token
           accountUrn: ${DT_ACCOUNT_URN}
           clientId: ${DT_CLIENT_ID}
