@@ -3,17 +3,38 @@ metadata:
   dependencies:
     apps:
       - id: dynatrace.automations
-        version: ^1.162.3
+        version: ^1.237.1
   inputs: []
 workflow:
   title: Lifecycle Events Workflow
   tasks:
+    get_global_vars:
+      name: get_global_vars
+      description: Build a custom task running js Code
+      action: dynatrace.automations:run-javascript
+      input:
+        script: >-
+          export default async function ({ execution_id }) {
+
+            /**
+             * Setting Workflow-wide defaults that can be used by any task!
+             */
+            
+            return {
+              "environmentUrl" : globalThis.environmentUrl,
+              "notificationEndpoint" : "https://backstage.dtulab707055379.dynatrace.training/api/notifications"
+            }  
+          }
+      position:
+        x: 0
+        y: 1
+      predecessors: []
     notify_backstage:
       name: notify_backstage
       description: Issue an HTTP request to any API
       action: dynatrace.automations:http-function
       input:
-        url: https://backstage.dtu-test-s17-2afbea.dynatrace.training/api/notifications
+        url: '{{ result("get_global_vars")["notificationEndpoint"]}}'
         method: POST
         payload: >-
           {
@@ -23,8 +44,12 @@ workflow:
           }
       position:
         x: 1
-        y: 1
-      predecessors: []
+        y: 2
+      predecessors:
+        - get_global_vars
+      conditions:
+        states:
+          get_global_vars: OK
     send_dt_failed_events:
       name: send_dt_failed_events
       description: Build a custom task running js Code
@@ -42,17 +67,38 @@ workflow:
             const ex = await execution(execution_id);
             const eventContext = ex.event();
 
+              // construct a "fake" buildID -> should come from the CI System
+            const now = new Date();
+            let hour = now.getHours()
+            let minute = now.getMinutes();
+            let day = now.getDate();
+            let month = now.getMonth()
+            var buildId = month + "." + day + "." + hour + "." + minute
+
             // Creates a BizEvent
             var bizEventDeploymentReady = {
               'git' : eventContext.git,
               'owner' : eventContext.owner,
               'argocd' : eventContext.argocd,
               'app_name' : eventContext.app_name,
+              'stage' : eventContext.stage,
+              'proj_name' : eventContext.proj_name,
               'syncFinishedTimestamp' : eventContext.timestamp,
               'syncFinishedEventId' : eventContext["event.id"],
               'event.type': 'deployment.validated',
               'status' : 'failed',
-              'event.provider': 'Lifecycle Events Workflow'
+              'event.provider': 'Lifecycle Events Workflow',
+              'timeframe.from': 'now-30m',
+              'timeframe.to': 'now',   
+              execution_context: {
+                buildId: buildId,
+                owner: eventContext.owner,
+                stage: eventContext.stage,
+                proj_name: eventContext.proj_name,
+                app_name: eventContext.app_name,
+                component_name: eventContext.app_name + "-" + eventContext.stage,      
+                id: crypto.randomUUID().toString()
+              } 
             }
             const resultBizEvent = await fetch('/platform/classic/environment-api/v2/bizevents/ingest', {
               method: 'POST',
@@ -64,7 +110,7 @@ workflow:
           }
       position:
         x: -2
-        y: 2
+        y: 3
       predecessors:
         - run_javascript_validate_entity
       conditions:
@@ -86,6 +132,14 @@ workflow:
             const eventContext = ex.event();
             const validateResult = await ex.result("run_javascript_validate_entity")
 
+            // construct a "fake" buildID -> should come from the CI System
+            const now = new Date();
+            let hour = now.getHours()
+            let minute = now.getMinutes();
+            let day = now.getDate();
+            let month = now.getMonth()
+            var buildId = month + "." + day + "." + hour + "." + minute
+            
             console.log(validateResult)
             
             // Creates a BizEvent
@@ -94,12 +148,23 @@ workflow:
               'owner' : eventContext.owner,
               'argocd' : eventContext.argocd,
               'app_name' : eventContext.app_name,
+              'stage' : eventContext.stage,
+              'proj_name' : eventContext.proj_name,
               'syncFinishedTimestamp' : eventContext.timestamp,
               'syncFinishedEventId' : eventContext["event.id"],
               'entityId' : validateResult.id,
               'event.type': 'deployment.validated',
               'status' : 'succeeded',    
-              'event.provider': 'Lifecycle Events Workflow'
+              'event.provider': 'Lifecycle Events Workflow',
+              execution_context: {
+                buildId: buildId,
+                owner: eventContext.owner,
+                stage: eventContext.stage,
+                proj_name: eventContext.proj_name,
+                app_name: eventContext.app_name,
+                component_name: eventContext.app_name + "-" + eventContext.stage,
+                id: crypto.randomUUID().toString()
+              }     
             }
             console.log(bizEventDeploymentReady)  
             const resultBizEvent = await fetch('/platform/classic/environment-api/v2/bizevents/ingest', {
@@ -119,8 +184,11 @@ workflow:
                 'owner' : eventContext.owner,
                 'argocd' : eventContext.argocd,
                 'app_name' : eventContext.app_name,
+                'stage' : eventContext.stage,
+                'proj_name' : eventContext.proj_name,
                 'syncFinishedTimestamp' : eventContext.timestamp,
-                'syncFinishedEventId' : eventContext["event.id"]
+                'syncFinishedEventId' : eventContext["event.id"],
+                'buildId' : buildId
               }
             }
             const resultEvent = await fetch('/platform/classic/environment-api/v2/events/ingest', {
@@ -132,8 +200,8 @@ workflow:
             return { triggeredBy: ex.trigger };
           }
       position:
-        x: 1
-        y: 2
+        x: 0
+        y: 3
       predecessors:
         - run_javascript_validate_entity
       conditions:
@@ -144,7 +212,7 @@ workflow:
       description: Issue an HTTP request to any API
       action: dynatrace.automations:http-function
       input:
-        url: https://backstage.dtu-test-s17-2afbea.dynatrace.training/api/notifications
+        url: '{{ result("get_global_vars")["notificationEndpoint"]}}'
         method: POST
         payload: >-
           {
@@ -154,7 +222,7 @@ workflow:
           }
       position:
         x: -1
-        y: 2
+        y: 3
       predecessors:
         - run_javascript_validate_entity
       conditions:
@@ -165,17 +233,17 @@ workflow:
       description: Issue an HTTP request to any API
       action: dynatrace.automations:http-function
       input:
-        url: https://backstage.dtu-test-s17-2afbea.dynatrace.training/api/notifications
+        url: '{{ result("get_global_vars")["notificationEndpoint"]}}'
         method: POST
         payload: >-
           {
-            "message": "Dynatrace Observability Ready for service {{ result("run_javascript_validate_entity")["entity.name"] }}: https://wls34801.apps.dynatrace.com/ui/apps/dynatrace.classic.technologies/#processgroupdetails;id={{ result("run_javascript_validate_entity")["id"] }} ",
+            "message": "Dynatrace Observability Ready for service {{ result("run_javascript_validate_entity")["entity.name"] }}: {{ result("get_global_vars")["environmentUrl"]}}ui/apps/dynatrace.classic.technologies/#processgroupdetails;id={{ result("run_javascript_validate_entity")["id"] }} ",
             "channel": "{{event()["owner"] }}",
             "origin": "Dynatrace Workflow"
           }
       position:
-        x: 2
-        y: 2
+        x: 1
+        y: 3
       predecessors:
         - run_javascript_validate_entity
       conditions:
@@ -246,10 +314,12 @@ workflow:
           }
       position:
         x: 0
-        y: 1
-      predecessors: []
+        y: 2
+      predecessors:
+        - get_global_vars
       conditions:
-        states: {}
+        states:
+          get_global_vars: OK
         custom: '{{ event()["event.type"] == "sync.finished" }}'
         else: STOP
       retry:

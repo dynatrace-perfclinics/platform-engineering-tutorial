@@ -129,3 +129,28 @@ data:
           headers:
             Content-Type: "application/json; charset=utf-8"
             Authorization: "Api-Token ${DT_EVENT_INGEST_TOKEN}"
+    dynatrace:
+      environments:
+        - name: hotday
+          url: ${DT_TENANT_APPS}
+          tokenUrl: https://sso-sprint.dynatracelabs.com/sso/oauth2/token
+          accountUrn: ${DT_ACCOUNT_URN}
+          clientId: ${DT_CLIENT_ID}
+          clientSecret: ${DT_CLIENT_SECRET}
+      queries:
+      - id: logs
+        query: >
+          fetch logs
+          | filter contains(k8s.namespace.name, "$${componentName}")
+          | filter content != " "
+          | fields timestamp, content 
+          | sort timestamp
+          | limit 10
+      - id: validations
+        query: >
+          fetch bizevents
+          | filter event.type == "guardian.validation.finished"
+          | parse execution_context, "JSON:context"
+          | filter contains(context[component_name], "$${componentName}")
+          | sort timestamp desc
+          | fields timestamp, name=guardian.name, buildId=context[buildId], status=validation.status, executionId=validation.workflow.execution.id
