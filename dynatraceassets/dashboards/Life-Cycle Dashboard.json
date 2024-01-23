@@ -36,6 +36,10 @@
                         "categoryAxisLabel": "event.type",
                         "valueAxis": "count()",
                         "valueAxisLabel": "count()"
+                    },
+                    "legend": {
+                        "position": "right",
+                        "hidden": false
                     }
                 },
                 "singleValue": {
@@ -104,7 +108,7 @@
         },
         "2": {
             "type": "data",
-            "title": "Successful Deployment Events",
+            "title": "Successful deployments",
             "query": "fetch bizevents\n| filter contains(event.type, \"deployment\")\n| filter status == \"succeeded\" and app_name == $application\n| summarize count()",
             "davis": {
                 "enabled": false,
@@ -198,7 +202,7 @@
         },
         "3": {
             "type": "data",
-            "title": "Failed Deployment Events",
+            "title": "Failed deployments",
             "query": "fetch bizevents\n| filter contains(event.type, \"deployment\")\n| filter status == \"failed\" and app_name == $application \n| summarize count()\n",
             "davis": {
                 "enabled": false,
@@ -354,11 +358,6 @@
                 }
             }
         },
-        "7": {
-            "type": "markdown",
-            "title": "",
-            "content": ""
-        },
         "11": {
             "type": "data",
             "title": "Guardian Validations",
@@ -400,7 +399,7 @@
                         "[\"Status\"]": 91,
                         "[\"ObjectiveSummary\"]": 347,
                         "[\"trigger\"]": 267.234375,
-                        "[\"Descr\"]": 402.015625
+                        "[\"Descr\"]": 162.015625
                     }
                 }
             }
@@ -408,16 +407,16 @@
         "12": {
             "type": "markdown",
             "title": "",
-            "content": "---\n# Site-Reliability Guardian Validations\n---"
+            "content": "---\n# Site-Reliability Guardian Validations"
         },
         "13": {
             "type": "markdown",
             "title": "",
-            "content": "---\n# Deployments Overall\n---"
+            "content": "---\n# All deployments\n"
         },
         "14": {
             "type": "data",
-            "title": "Successful Deployment Events",
+            "title": "Successful deployments",
             "query": "fetch bizevents\n| filter contains(event.type, \"deployment\")\n| filter status == \"succeeded\"\n| summarize count()",
             "davis": {
                 "enabled": false,
@@ -511,7 +510,7 @@
         },
         "15": {
             "type": "data",
-            "title": "Failed Deployment Events",
+            "title": "Failed deployments",
             "query": "fetch bizevents\n| filter contains(event.type, \"deployment\")\n| filter status == \"failed\"\n| summarize count()\n",
             "davis": {
                 "enabled": false,
@@ -625,7 +624,7 @@
         "17": {
             "type": "markdown",
             "title": "",
-            "content": "---\n# Lifecycle Sync Events \n---"
+            "content": "---\n# Lifecycle sync events \n---"
         },
         "18": {
             "type": "data",
@@ -654,6 +653,10 @@
                         "categoryAxisLabel": "event.type",
                         "valueAxis": "count()",
                         "valueAxisLabel": "count()"
+                    },
+                    "legend": {
+                        "position": "right",
+                        "hidden": false
                     }
                 },
                 "singleValue": {
@@ -676,7 +679,7 @@
         "19": {
             "type": "markdown",
             "title": "",
-            "content": "---\n# Lifecycle  Events per application\n---"
+            "content": "---\n## Lifecycle  events per application\n* $application *selected*"
         },
         "20": {
             "type": "data",
@@ -698,7 +701,13 @@
                         "groupingThresholdValue": 0,
                         "valueType": "relative"
                     },
-                    "categoryOverrides": {}
+                    "categoryOverrides": {},
+                    "categoricalBarChartSettings": {
+                        "categoryAxis": "Product",
+                        "categoryAxisLabel": "Product",
+                        "valueAxis": "count()",
+                        "valueAxisLabel": "count()"
+                    }
                 },
                 "singleValue": {
                     "showLabel": true,
@@ -714,7 +723,7 @@
                     "hiddenColumns": [],
                     "lineWrapIds": [],
                     "columnWidths": {
-                        "[\"Name\"]": 271,
+                        "[\"Name\"]": 275,
                         "[\"Id\"]": 282.171875,
                         "[\"instanceOf\"]": 260.90625,
                         "[\"Version\"]": 96.234375,
@@ -910,7 +919,13 @@
                     "enableSparklines": false,
                     "hiddenColumns": [],
                     "lineWrapIds": [],
-                    "columnWidths": {}
+                    "columnWidths": {
+                        "[\"timestamp\"]": 147.96875,
+                        "[\"event.name\"]": 327.9375,
+                        "[\"dt.entity.process_group_instance.name\"]": 600,
+                        "[\"app_name\"]": 183.59375,
+                        "[\"owner\"]": 87.578125
+                    }
                 }
             }
         },
@@ -922,7 +937,7 @@
         "26": {
             "type": "markdown",
             "title": "",
-            "content": "---\n# Releases\n---"
+            "content": "---\n# Releases"
         },
         "27": {
             "type": "markdown",
@@ -1116,177 +1131,495 @@
         "31": {
             "type": "markdown",
             "title": "",
-            "content": "---\n# Successful Deployments per application \n--- \n "
+            "content": "---\n## Deployments per application \n* $application *selected*"
+        },
+        "34": {
+            "type": "data",
+            "title": "# Process Group Instances",
+            "query": "fetch dt.entity.process_group_instance  \n| fields Name=entity.name, Id=id, tags=tags, instanceOf = instance_of[dt.entity.process_group]\n//| filter matchesValue(tags, \"*release_build_version*\") \n| filter matchesValue(tags, \"*release*\") \n| fieldsAdd t = toString(tags)\n| parse t, \"LD '[Environment]DT_RELEASE_VERSION:' LD:Version '\\\", ' LD \" \n| parse t, \"LD '[Environment]DT_RELEASE_STAGE:' LD:Stage '\\\", ' LD \" \n//| parse t, \"LD '[Environment]DT_RELEASE_BUILD_VERSION:' LD:Build '\\\", ' LD \" \n| parse t, \"LD '[Environment]DT_RELEASE_PRODUCT:' LD:Product '\\\", ' LD \" \n| parse t, \"LD '[Environment]dt.owner:' LD:Owner '\\\", ' LD \"\n| filter isNotNull(Version)\n\n| fieldsRemove tags, t  \n| summarize releases=count()",
+            "davis": {
+                "enabled": false,
+                "davisVisualization": {
+                    "isAvailable": true
+                }
+            },
+            "visualization": "singleValue",
+            "visualizationSettings": {
+                "thresholds": [],
+                "chartSettings": {
+                    "gapPolicy": "connect",
+                    "circleChartSettings": {
+                        "groupingThresholdType": "relative",
+                        "groupingThresholdValue": 0,
+                        "valueType": "relative"
+                    },
+                    "categoryOverrides": {}
+                },
+                "singleValue": {
+                    "showLabel": false,
+                    "label": "",
+                    "prefixIcon": "",
+                    "autoscale": true,
+                    "alignment": "center",
+                    "isBackgroundThresholdActive": false
+                },
+                "table": {
+                    "rowDensity": "condensed",
+                    "enableSparklines": false,
+                    "hiddenColumns": [],
+                    "lineWrapIds": [],
+                    "columnWidths": {
+                        "[\"Name\"]": 271,
+                        "[\"Id\"]": 282.171875,
+                        "[\"instanceOf\"]": 260.90625,
+                        "[\"Version\"]": 96.234375,
+                        "[\"Stage\"]": 84.9375,
+                        "[\"Product\"]": 207.703125,
+                        "[\"Owner\"]": 89.21875
+                    }
+                }
+            }
+        },
+        "35": {
+            "type": "data",
+            "title": "# Process Groups",
+            "query": "fetch dt.entity.process_group\n//| filter matchesValue(tags, \"*release_build_version*\") \n//| fields Name = entity.name, Id = id, tags, Instances = instantiates[dt.entity.process_group_instance]\n| filter matchesValue(tags, \"*release*\") \n| fieldsAdd t = toString(tags)\n| parse t, \"LD '[Environment]DT_RELEASE_VERSION:' LD:Version '\\\", ' LD \" \n| parse t, \"LD '[Environment]DT_RELEASE_STAGE:' LD:Stage '\\\", ' LD \" \n//| parse t, \"LD '[Environment]DT_RELEASE_BUILD_VERSION:' LD:Build '\\\", ' LD \" \n| parse t, \"LD '[Environment]DT_RELEASE_PRODUCT:' LD:Product '\\\", ' LD \" \n| parse t, \"LD '[Environment]dt.owner:' LD:Owner '\\\", ' LD \"\n| filter isNotNull(Version)\n| lookup [\n    fetch bizevents\n    | filter contains(event.type, \"deployment\") OR contains\n    | fields timestamp, event.type, status, entityId\n    ], sourceField:id, lookupField:entityId\n| fieldsRemove tags, t, lookup.entityId\n| fields Name = entity.name, Id = id, Version = Version, Stage = Stage, Product = Product, Owner=Owner, Instances=instantiates[dt.entity.process_group_instance], EventTimestamp = lookup.timestamp, EventType = lookup.event.type, EventStatus = lookup.status\n|summarize releases=count()",
+            "davis": {
+                "enabled": false,
+                "davisVisualization": {
+                    "isAvailable": true
+                }
+            },
+            "visualization": "singleValue",
+            "visualizationSettings": {
+                "thresholds": [],
+                "chartSettings": {
+                    "gapPolicy": "connect",
+                    "circleChartSettings": {
+                        "groupingThresholdType": "relative",
+                        "groupingThresholdValue": 0,
+                        "valueType": "relative"
+                    },
+                    "categoryOverrides": {}
+                },
+                "singleValue": {
+                    "showLabel": false,
+                    "label": "",
+                    "prefixIcon": "",
+                    "autoscale": true,
+                    "alignment": "center",
+                    "isBackgroundThresholdActive": false
+                },
+                "table": {
+                    "rowDensity": "condensed",
+                    "enableSparklines": false,
+                    "hiddenColumns": [],
+                    "lineWrapIds": [],
+                    "columnWidths": {
+                        "[\"Name\"]": 424.765625,
+                        "[\"Id\"]": 260.265625,
+                        "[\"Instances\"]": 394,
+                        "[\"Version\"]": 96.234375,
+                        "[\"Stage\"]": 84.9375,
+                        "[\"Product\"]": 207.703125,
+                        "[\"Owner\"]": 89.21875,
+                        "[\"EventTimestamp\"]": 157,
+                        "[\"EventType\"]": 147,
+                        "[\"EventStatus\"]": 126.265625
+                    }
+                }
+            }
+        },
+        "39": {
+            "type": "markdown",
+            "title": "",
+            "content": " #### Release Inventory (Process Groups) per application\n* $application *selected*"
+        },
+        "40": {
+            "type": "data",
+            "title": "# Process Groups per application",
+            "query": "fetch dt.entity.process_group\n//| filter matchesValue(tags, \"*release_build_version*\") \n//| fields Name = entity.name, Id = id, tags, Instances = instantiates[dt.entity.process_group_instance]\n| filter matchesValue(tags, \"*release*\") \n| fieldsAdd t = toString(tags)\n| parse t, \"LD '[Environment]DT_RELEASE_VERSION:' LD:Version '\\\", ' LD \" \n| parse t, \"LD '[Environment]DT_RELEASE_STAGE:' LD:Stage '\\\", ' LD \" \n//| parse t, \"LD '[Environment]DT_RELEASE_BUILD_VERSION:' LD:Build '\\\", ' LD \" \n| parse t, \"LD '[Environment]DT_RELEASE_PRODUCT:' LD:Product '\\\", ' LD \" \n| parse t, \"LD '[Environment]dt.owner:' LD:Owner '\\\", ' LD \"\n| filter isNotNull(Version)\n| lookup [\n    fetch bizevents\n    | filter contains(event.type, \"deployment\") OR contains\n    | fields timestamp, event.type, status, entityId\n    ], sourceField:id, lookupField:entityId\n| fieldsRemove tags, t, lookup.entityId\n| fields Name = entity.name, Id = id, Version = Version, Stage = Stage, Product = Product, Owner=Owner, Instances=instantiates[dt.entity.process_group_instance], EventTimestamp = lookup.timestamp, EventType = lookup.event.type, EventStatus = lookup.status\n| filter Product == $application\n|summarize releases=count()",
+            "davis": {
+                "enabled": false,
+                "davisVisualization": {
+                    "isAvailable": true
+                }
+            },
+            "visualization": "singleValue",
+            "visualizationSettings": {
+                "thresholds": [],
+                "chartSettings": {
+                    "gapPolicy": "connect",
+                    "circleChartSettings": {
+                        "groupingThresholdType": "relative",
+                        "groupingThresholdValue": 0,
+                        "valueType": "relative"
+                    },
+                    "categoryOverrides": {}
+                },
+                "singleValue": {
+                    "showLabel": false,
+                    "label": "",
+                    "prefixIcon": "",
+                    "autoscale": true,
+                    "alignment": "center",
+                    "isBackgroundThresholdActive": false
+                },
+                "table": {
+                    "rowDensity": "condensed",
+                    "enableSparklines": false,
+                    "hiddenColumns": [],
+                    "lineWrapIds": [],
+                    "columnWidths": {
+                        "[\"Name\"]": 424.765625,
+                        "[\"Id\"]": 260.265625,
+                        "[\"Instances\"]": 168,
+                        "[\"Version\"]": 96.234375,
+                        "[\"Stage\"]": 84.9375,
+                        "[\"Product\"]": 207.703125,
+                        "[\"Owner\"]": 161.21875,
+                        "[\"EventTimestamp\"]": 157,
+                        "[\"EventType\"]": 147,
+                        "[\"EventStatus\"]": 126.265625
+                    }
+                }
+            }
+        },
+        "41": {
+            "type": "markdown",
+            "title": "",
+            "content": " #### Release Events per application\n* $application *selected*"
+        },
+        "42": {
+            "type": "data",
+            "title": "# PGIs per application",
+            "query": "fetch dt.entity.process_group_instance  \n| fields Name=entity.name, Id=id, tags=tags, instanceOf = instance_of[dt.entity.process_group]\n//| filter matchesValue(tags, \"*release_build_version*\") \n| filter matchesValue(tags, \"*release*\") \n| fieldsAdd t = toString(tags)\n| parse t, \"LD '[Environment]DT_RELEASE_VERSION:' LD:Version '\\\", ' LD \" \n| parse t, \"LD '[Environment]DT_RELEASE_STAGE:' LD:Stage '\\\", ' LD \" \n//| parse t, \"LD '[Environment]DT_RELEASE_BUILD_VERSION:' LD:Build '\\\", ' LD \" \n| parse t, \"LD '[Environment]DT_RELEASE_PRODUCT:' LD:Product '\\\", ' LD \" \n| parse t, \"LD '[Environment]dt.owner:' LD:Owner '\\\", ' LD \"\n| filter isNotNull(Version)\n\n| fieldsRemove tags, t  \n| summarize PGIs=count(), by:{Product}",
+            "davis": {
+                "enabled": false,
+                "davisVisualization": {
+                    "isAvailable": true
+                }
+            },
+            "visualization": "table",
+            "visualizationSettings": {
+                "thresholds": [],
+                "chartSettings": {
+                    "gapPolicy": "connect",
+                    "circleChartSettings": {
+                        "groupingThresholdType": "relative",
+                        "groupingThresholdValue": 0,
+                        "valueType": "relative"
+                    },
+                    "categoryOverrides": {},
+                    "categoricalBarChartSettings": {
+                        "categoryAxis": "Product",
+                        "categoryAxisLabel": "Product",
+                        "valueAxis": "count()",
+                        "valueAxisLabel": "count()"
+                    }
+                },
+                "singleValue": {
+                    "showLabel": true,
+                    "label": "",
+                    "prefixIcon": "",
+                    "autoscale": true,
+                    "alignment": "center",
+                    "isBackgroundThresholdActive": false
+                },
+                "table": {
+                    "rowDensity": "condensed",
+                    "enableSparklines": false,
+                    "hiddenColumns": [],
+                    "lineWrapIds": [],
+                    "columnWidths": {
+                        "[\"Name\"]": 275,
+                        "[\"Id\"]": 282.171875,
+                        "[\"instanceOf\"]": 260.90625,
+                        "[\"Version\"]": 96.234375,
+                        "[\"Stage\"]": 84.9375,
+                        "[\"Product\"]": 194.703125,
+                        "[\"Owner\"]": 89.21875,
+                        "[\"PGIs\"]": 77.71875
+                    }
+                }
+            }
+        },
+        "43": {
+            "type": "markdown",
+            "title": "",
+            "content": " "
+        },
+        "45": {
+            "type": "markdown",
+            "title": "",
+            "content": " "
+        },
+        "46": {
+            "type": "markdown",
+            "title": "",
+            "content": " "
+        },
+        "47": {
+            "type": "markdown",
+            "title": "",
+            "content": " "
+        },
+        "48": {
+            "type": "markdown",
+            "title": "",
+            "content": " "
+        },
+        "49": {
+            "type": "markdown",
+            "title": "",
+            "content": " "
+        },
+        "50": {
+            "type": "markdown",
+            "title": "",
+            "content": " "
         }
     },
     "layouts": {
         "0": {
             "x": 0,
             "y": 2,
-            "w": 10,
+            "w": 7,
             "h": 4
         },
         "1": {
-            "x": 14,
-            "y": 8,
-            "w": 6,
+            "x": 16,
+            "y": 9,
+            "w": 7,
             "h": 3
         },
         "2": {
-            "x": 10,
-            "y": 8,
+            "x": 12,
+            "y": 9,
             "w": 2,
             "h": 3
         },
         "3": {
-            "x": 12,
-            "y": 8,
+            "x": 14,
+            "y": 9,
             "w": 2,
             "h": 3
         },
         "4": {
             "x": 0,
-            "y": 13,
+            "y": 15,
             "w": 4,
             "h": 5
         },
         "5": {
             "x": 19,
-            "y": 13,
+            "y": 15,
             "w": 3,
             "h": 5
         },
-        "7": {
-            "x": 18,
-            "y": 2,
-            "w": 2,
-            "h": 1
-        },
         "11": {
             "x": 4,
-            "y": 13,
+            "y": 15,
             "w": 15,
             "h": 5
         },
         "12": {
             "x": 0,
-            "y": 11,
-            "w": 21,
+            "y": 13,
+            "w": 23,
             "h": 2
         },
         "13": {
             "x": 0,
-            "y": 6,
-            "w": 10,
+            "y": 7,
+            "w": 11,
             "h": 2
         },
         "14": {
             "x": 0,
-            "y": 8,
+            "y": 9,
             "w": 2,
             "h": 3
         },
         "15": {
             "x": 2,
-            "y": 8,
+            "y": 9,
             "w": 2,
             "h": 3
         },
         "16": {
             "x": 4,
-            "y": 8,
-            "w": 6,
+            "y": 9,
+            "w": 7,
             "h": 3
         },
         "17": {
             "x": 0,
             "y": 0,
-            "w": 10,
+            "w": 11,
             "h": 2
         },
         "18": {
             "x": 12,
             "y": 2,
-            "w": 5,
+            "w": 7,
             "h": 4
         },
         "19": {
             "x": 12,
             "y": 0,
-            "w": 10,
+            "w": 11,
             "h": 2
         },
         "20": {
             "x": 0,
-            "y": 31,
-            "w": 18,
+            "y": 44,
+            "w": 19,
             "h": 6
         },
         "21": {
             "x": 0,
-            "y": 20,
-            "w": 16,
+            "y": 23,
+            "w": 15,
             "h": 1
         },
         "22": {
             "x": 0,
-            "y": 21,
-            "w": 16,
-            "h": 6
+            "y": 26,
+            "w": 15,
+            "h": 5
         },
         "23": {
-            "x": 16,
-            "y": 21,
-            "w": 2,
-            "h": 6
+            "x": 15,
+            "y": 24,
+            "w": 4,
+            "h": 2
         },
         "24": {
-            "x": 18,
-            "y": 21,
-            "w": 5,
-            "h": 6
+            "x": 15,
+            "y": 26,
+            "w": 8,
+            "h": 5
         },
         "25": {
-            "x": 16,
-            "y": 20,
-            "w": 7,
+            "x": 15,
+            "y": 23,
+            "w": 8,
             "h": 1
         },
         "26": {
             "x": 0,
-            "y": 18,
+            "y": 21,
             "w": 23,
             "h": 2
         },
         "27": {
             "x": 0,
-            "y": 30,
+            "y": 41,
             "w": 23,
             "h": 1
         },
         "28": {
             "x": 0,
-            "y": 27,
-            "w": 16,
-            "h": 3
+            "y": 36,
+            "w": 15,
+            "h": 4
         },
         "29": {
-            "x": 18,
-            "y": 27,
-            "w": 6,
-            "h": 3
+            "x": 15,
+            "y": 36,
+            "w": 8,
+            "h": 4
         },
         "30": {
-            "x": 16,
-            "y": 27,
-            "w": 2,
-            "h": 3
+            "x": 15,
+            "y": 34,
+            "w": 3,
+            "h": 2
         },
         "31": {
-            "x": 10,
-            "y": 6,
-            "w": 10,
+            "x": 12,
+            "y": 7,
+            "w": 11,
             "h": 2
+        },
+        "34": {
+            "x": 0,
+            "y": 42,
+            "w": 4,
+            "h": 2
+        },
+        "35": {
+            "x": 0,
+            "y": 24,
+            "w": 4,
+            "h": 2
+        },
+        "39": {
+            "x": 0,
+            "y": 32,
+            "w": 15,
+            "h": 2
+        },
+        "40": {
+            "x": 0,
+            "y": 34,
+            "w": 4,
+            "h": 2
+        },
+        "41": {
+            "x": 15,
+            "y": 32,
+            "w": 7,
+            "h": 2
+        },
+        "42": {
+            "x": 19,
+            "y": 44,
+            "w": 5,
+            "h": 6
+        },
+        "43": {
+            "x": 7,
+            "y": 42,
+            "w": 15,
+            "h": 2
+        },
+        "45": {
+            "x": 0,
+            "y": 31,
+            "w": 23,
+            "h": 1
+        },
+        "46": {
+            "x": 0,
+            "y": 40,
+            "w": 23,
+            "h": 1
+        },
+        "47": {
+            "x": 0,
+            "y": 50,
+            "w": 23,
+            "h": 1
+        },
+        "48": {
+            "x": 0,
+            "y": 20,
+            "w": 23,
+            "h": 1
+        },
+        "49": {
+            "x": 0,
+            "y": 12,
+            "w": 23,
+            "h": 1
+        },
+        "50": {
+            "x": 0,
+            "y": 6,
+            "w": 23,
+            "h": 1
         }
     }
 }
