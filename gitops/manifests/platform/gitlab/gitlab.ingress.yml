@@ -10,7 +10,7 @@ metadata:
     nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
 spec:
   rules:
-    - host: gitlab.BASE_DOMAIN_PLACEHOLDER
+    - host: gitlab.perform.omnilogy.pl
       http:
         paths:
           - path: /

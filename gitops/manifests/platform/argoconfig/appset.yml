@@ -13,7 +13,7 @@ spec:
       cloneProtocol: https
       gitlab:
         group: "group1"
-        api: "https://gitlab.BASE_DOMAIN_PLACEHOLDER/"
+        api: "https://gitlab.perform.omnilogy.pl/"
   template:
     metadata:
       name: "{{ repository }}"

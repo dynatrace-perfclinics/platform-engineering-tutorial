@@ -10,13 +10,13 @@ environmentGroups:
         # .live. when using API token only
         # .apps. when using API + oAuth or just oAuth
         url:
-          value: "DT_TENANT_LIVE_PLACEHOLDER"
+          value: "https://uvu34795.live.dynatrace.com"
         auth:
           token:
             name: "monacoToken" 
       - name: prod-api-and-oauth
         url:
-          value: "DT_TENANT_APPS_PLACEHOLDER"
+          value: "https://uvu34795.apps.dynatrace.com"
         auth:
           token:
             name: "monacoToken"

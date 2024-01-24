@@ -10,7 +10,7 @@ metadata:
     nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
 spec:
   rules:
-    - host: workflows.BASE_DOMAIN_PLACEHOLDER
+    - host: workflows.perform.omnilogy.pl
       http:
         paths:
           - path: /
