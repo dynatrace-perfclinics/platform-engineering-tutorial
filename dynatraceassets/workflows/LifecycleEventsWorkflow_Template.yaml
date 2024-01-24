@@ -22,7 +22,7 @@ workflow:
             
             return {
               "environmentUrl" : globalThis.environmentUrl,
-              "notificationEndpoint" : "https://backstage.dtulab707055379.dynatrace.training/api/notifications"
+              "notificationEndpoint" : "https://backstage.dtulabXXXXXX.dynatrace.training/api/notifications"
             }  
           }
       position:
