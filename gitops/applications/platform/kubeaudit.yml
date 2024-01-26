@@ -9,9 +9,9 @@ metadata:
   namespace: argocd
 spec:
   sources:
-    - repoURL: 'FORKED_TEMPLATE_REPO_PLACEHOLDER.git'
+    - repoURL: 'https://github.com/tomaxp/platform-engineering-tutorial.git'
       targetRevision: main
-      path: "FORKED_REPO_GITOPS_CLASSROOMID_PLACEHOLDER/manifests/platform/kubeaudit"
+      path: "gitops/manifests/platform/kubeaudit"
   destination:
     namespace: kubeaudit
     server: 'https://kubernetes.default.svc'

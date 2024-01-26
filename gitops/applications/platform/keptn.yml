@@ -14,9 +14,9 @@ spec:
       chart: klt
       # helm:
       #   values: |
-    - repoURL: 'FORKED_TEMPLATE_REPO_PLACEHOLDER.git'
+    - repoURL: 'https://github.com/tomaxp/platform-engineering-tutorial.git'
       targetRevision: main
-      path: "FORKED_REPO_GITOPS_CLASSROOMID_PLACEHOLDER/manifests/platform/keptn"
+      path: "gitops/manifests/platform/keptn"
   destination:
     namespace: keptn
     server: 'https://kubernetes.default.svc'

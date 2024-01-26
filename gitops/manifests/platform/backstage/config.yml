@@ -7,13 +7,13 @@ data:
   app-config.production.yaml: |
     app:
       title: DT HOT Day - Backstage
-      baseUrl: https://backstage.BASE_DOMAIN_PLACEHOLDER
+      baseUrl: https://backstage.perform.omnilogy.pl
 
     organization:
       name: DT HOT Day - Backstage
 
     backend:
-      baseUrl: https://backstage.BASE_DOMAIN_PLACEHOLDER
+      baseUrl: https://backstage.perform.omnilogy.pl
       listen:
         port: 7007 # TODO set the port Backstage is listening on
       csp:
@@ -22,7 +22,7 @@ data:
         connect-src: ["'self'", 'http:', 'https:']
         img-src: ["'self'", "https:"]
       cors:
-        origin: https://backstage.BASE_DOMAIN_PLACEHOLDER
+        origin: https://backstage.perform.omnilogy.pl
         methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
         credentials: true
       # If you want to use Postgres see https://backstage.io/docs/tutorials/switching-sqlite-postgres/
@@ -54,8 +54,8 @@ data:
     #     - host: github.com
     #       token: ${GITHUB_TOKEN}
       gitlab:
-        - host: gitlab.BASE_DOMAIN_PLACEHOLDER
-          apiBaseUrl: https://gitlab.BASE_DOMAIN_PLACEHOLDER/api/v4
+        - host: gitlab.perform.omnilogy.pl
+          apiBaseUrl: https://gitlab.perform.omnilogy.pl/api/v4
           token: ${GITLAB_TOKEN}
     catalog:
       rules:
@@ -77,8 +77,8 @@ data:
         # Don't forget to define an integration for your GitLab host(s)
         gitlab:
           public:
-            host: gitlab.BASE_DOMAIN_PLACEHOLDER
-            apiBaseUrl: https://gitlab.BASE_DOMAIN_PLACEHOLDER/api/v4
+            host: gitlab.perform.omnilogy.pl
+            apiBaseUrl: https://gitlab.perform.omnilogy.pl/api/v4
             # proxySecure: true
             branch: main
             skipForkedRepos: true
@@ -93,7 +93,7 @@ data:
         - type: 'config'
           instances:
             - name: argocd
-              url: https://argo.BASE_DOMAIN_PLACEHOLDER
+              url: https://argo.perform.omnilogy.pl
               token: ${ARGOCD_TOKEN}
               
     # See https://backstage.io/docs/features/kubernetes/configuration

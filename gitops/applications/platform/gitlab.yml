@@ -9,9 +9,9 @@ metadata:
   namespace: argocd
 spec:
   sources:
-    - repoURL: 'FORKED_TEMPLATE_REPO_PLACEHOLDER.git'
+    - repoURL: 'https://github.com/tomaxp/platform-engineering-tutorial.git'
       targetRevision: main
-      path: "FORKED_REPO_GITOPS_CLASSROOMID_PLACEHOLDER/manifests/platform/gitlab"
+      path: "gitops/manifests/platform/gitlab"
     - repoURL: 'https://charts.gitlab.io'
       targetRevision: 7.5.2
       chart: gitlab
@@ -63,10 +63,10 @@ spec:
             #tracing:
             #  connection:
             #    string: "http://otel-collector.opentelemetry.svc.cluster.local:4318"
-            #    urlTemplate: "https://gitlab.BASE_DOMAIN_PLACEHOLDER/{{ service }}/{{ correlation_id  }}"
+            #    urlTemplate: "https://gitlab.perform.omnilogy.pl/{{ service }}/{{ correlation_id  }}"
             hosts:
               https: false
-              domain: BASE_DOMAIN_PLACEHOLDER
+              domain: perform.omnilogy.pl
               nginx-ingress:
                 enabled: false
             ingress:

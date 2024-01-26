@@ -10,7 +10,7 @@ metadata:
     nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
 spec:
   rules:
-    - host: backstage.BASE_DOMAIN_PLACEHOLDER
+    - host: backstage.perform.omnilogy.pl
       http:
         paths:
           - path: /
