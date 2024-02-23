@@ -52,7 +52,7 @@ For this repo.
 
 Go [here](https://github.com/settings/personal-access-tokens/new) and create a new "fine grained" token:
 
-- Resource owner: `YourOrg/YourForkedRepo`
+- Resource owner: `YourUser/YourForkedRepo`
 - Choose `Only selected repositories` and again select your fork
 
 #### Permissions required
