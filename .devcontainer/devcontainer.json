@@ -94,9 +94,9 @@
 
 	// Add recommended secrets
 	"secrets": {
-		"GH_RW_TOKEN": {
-			"description": "Your GitHub Personal Access Token (PAT) with these permissions: `Administration (read + write)`, `Codespaces (read + write)` and `Contents (read and write)`"
-		},
+		// "GH_RW_TOKEN": {
+		// 	"description": "Your GitHub Personal Access Token (PAT) with these permissions: `Administration (read + write)`, `Codespaces (read + write)` and `Contents (read and write)`"
+		// },
 		"DT_ENV": {
 			"description": "Please use one of the following words: live, sprint or dev. If unsure, use live"
 		},

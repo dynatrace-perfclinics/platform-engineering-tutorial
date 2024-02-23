@@ -1,37 +1,10 @@
 import os
 from utils import *
 
-###########################################
-# INPUT VARIABLES
-###########################################
-
-#WAIT_FOR_SECRETS_TIMEOUT = 60
-#WAIT_FOR_ACCOUNTS_TIMEOUT = 60
-
-#STANDARD_TIMEOUT="300s"
-#BACKSTAGE_PORT_NUMBER = 7007
-# ARGOCD_PORT_NUMBER = 30100
-# DT_RW_API_TOKEN = os.environ.get("DT_RW_API_TOKEN") # token to create all other tokens
-# DT_ENV_NAME = os.environ.get("DT_ENV_NAME") # abc12345
-# DT_ENV = os.environ.get("DT_ENV", "live") # dev, sprint" or "live"
-#GH_RW_TOKEN = os.environ.get("GH_RW_TOKEN") # Token ArgoCD uses to create "customer-apps" repositories. TODO: What permissions does this need?
-#DT_GEOLOCATION = None
-#CODESPACE_NAME = os.environ.get("CODESPACE_NAME")
-#GITHUB_ORG_SLASH_REPOSITORY = os.environ.get("GITHUB_REPOSITORY") # eg. yourOrg/yourRepo
-# GITHUB_REPO_NAME = os.environ.get("RepositoryName") # eg. mclass
-# GITHUB_DOT_COM_REPO = f"https://github.com/{GITHUB_ORG_SLASH_REPOSITORY}.git"
-# GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN = os.environ.get("GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN")
-# GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")
-# GITHUB_USER = os.environ.get("GITHUB_USER")
-# DT_OAUTH_CLIENT_ID = os.environ.get("DT_OAUTH_CLIENT_ID")
-# DT_OAUTH_CLIENT_SECRET = os.environ.get("DT_OAUTH_CLIENT_SECRET")
-# DT_OAUTH_ACCOUNT_URN = os.environ.get("DT_OAUTH_ACCOUNT_URN")
-
 if (
     DT_RW_API_TOKEN is None or
     DT_ENV_NAME is None or
     DT_ENV is None or
-    GH_RW_TOKEN is None or
     DT_OAUTH_CLIENT_ID is None or
     DT_OAUTH_CLIENT_SECRET is None or
     DT_OAUTH_ACCOUNT_URN is None
@@ -218,7 +191,7 @@ output = run_command(["kubectl", "-n", "backstage", "create", "secret", "generic
                       f"--from-literal=BACKSTAGE_PORT_NUMBER={BACKSTAGE_PORT_NUMBER}",
                       f"--from-literal=ARGOCD_PORT_NUMBER={ARGOCD_PORT_NUMBER}",
                       f"--from-literal=ARGOCD_TOKEN={ARGOCD_TOKEN}",
-                      f"--from-literal=GITHUB_TOKEN={GH_RW_TOKEN}",
+                      f"--from-literal=GITHUB_TOKEN={GITHUB_TOKEN}",
                       f"--from-literal=GITHUB_ORG={github_org}",
                       f"--from-literal=GITHUB_REPO={GITHUB_REPO_NAME}",
                       f"--from-literal=GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN={GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}",
