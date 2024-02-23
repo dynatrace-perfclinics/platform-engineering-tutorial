@@ -46,7 +46,11 @@ You should now have 5 pieces of information:
 
 ### Fork Repo
 
-For this repo.
+Fork this repo.
+
+Untick the `Copy main branch only`.
+
+![untick copy main branch only](images/copy-main-branch-only-unticked.jpg)
 
 ### Create GitHub Personal Access Token
 
@@ -69,7 +73,12 @@ Go [here](https://github.com/settings/personal-access-tokens/new) and create a n
 
 At this point you should have seven pieces of information.
 
-In your fork, click the green `Code` button, change to `Codespaces`. Click the `...` and choose `New with options...`
+In your fork:
+
+1. Switch to the `codespace` branch
+1. Click the green `Code` button
+1. Change to `Codespaces`
+1. Click the `...` and choose `New with options...`
 
 **Warning!** Do not click the green "Create codespace on codespace" button!!
 
