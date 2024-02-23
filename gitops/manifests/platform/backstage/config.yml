@@ -72,8 +72,7 @@ data:
             catalogPath: '**/catalog-info.yaml' # this will search recursively all folders for catalog-info.yaml files
             filters:
               repository: ".*${GITHUB_REPO}"
-            # filters:
-            #   branch: "main"
+              branch: "codespace"
             #   repository: ".*"
             schedule:
               frequency: { minutes: 5 }
