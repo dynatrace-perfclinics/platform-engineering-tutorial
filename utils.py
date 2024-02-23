@@ -236,8 +236,12 @@ def create_dt_api_token(token_name, scopes, dt_rw_api_token, dt_tenant_live):
     return resp.json()['token']
 
 def build_dt_urls(dt_env, dt_env_name):
-    dt_tenant_apps = f"https://{dt_env_name}.{dt_env}.apps.dynatrace.com"
-    dt_tenant_live = f"https://{dt_env_name}.{dt_env}.dynatrace.com"
+    if dt_env.lower() == "live":
+        dt_tenant_apps = f"https://{dt_env_name}.apps.dynatrace.com"
+        dt_tenant_live = f"https://{dt_env_name}.live.dynatrace.com"
+    else:
+      dt_tenant_apps = f"https://{dt_env_name}.{dt_env}.apps.dynatrace.com"
+      dt_tenant_live = f"https://{dt_env_name}.{dt_env}.dynatrace.com"
 
     # if environment is "dev" or "sprint"
     # ".dynatracelabs.com" not ".dynatrace.com"
