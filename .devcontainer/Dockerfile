@@ -7,6 +7,8 @@ ARG USER_GID=$USER_UID
 RUN export DEBIAN_FRONTEND=noninteractive
 
 COPY docker.sh /tmp/scripts/
+RUN chmod +x /tmp/scripts/docker.sh
+
 # update the container
 RUN apt-get update && \
     apt-get upgrade -y && \
