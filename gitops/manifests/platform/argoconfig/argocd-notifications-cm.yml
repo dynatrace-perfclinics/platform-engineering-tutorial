@@ -11,11 +11,6 @@ data:
       value: Api-Token $dynatrace-token
     - name: Content-Type
       value: application/json
-  service.webhook.webhooksite: |
-    url: https://webhook.site/0f49aff1-f5ee-48b7-b737-8285f68a58bd
-    headers:
-    - name: Authorization
-      value: somevalue
   template.app-sync-succeeded: |
     webhook:
       dynatrace:
@@ -36,22 +31,6 @@ data:
               "sync_status" : "{{.app.status.sync.status}}",
               "synced_at" : "{{.app.status.operationState.finishedAt}}"
             }
-          }
-      webhooksite:
-        method: POST
-        path: /
-        body: |
-          {
-            "action" : "app-sync-succeeded",
-            "repo_url": "{{.app.spec.source.repoURL}}",
-            "revisions" : "{{.app.status.operationState.operation.sync.revision}}",
-            "commit_url" : "{{.app.spec.source.repoURL}}/-/commit/{{.app.status.operationState.operation.sync.revision}}",
-            "target_url" : "{{.context.argocdUrl}}/applications/{{.app.metadata.name}}",
-            "app_name": "{{.app.metadata.name}}",
-            "source" : "ArgoCD",
-            "sync_status" : "{{.app.status.sync.status}}",
-            "synced_at" : "{{.app.status.operationState.finishedAt}}",
-            "recipient": "{{ .recipient }}"
           }
   template.app-sync-running: |
     webhook:

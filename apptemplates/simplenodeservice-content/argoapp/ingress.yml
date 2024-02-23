@@ -12,13 +12,13 @@ metadata:
     nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
 spec:
   rules:
-    - host: "${{ values.projectName }}-${{ values.teamIdentifier }}-${{ values.releaseStage }}.BASE_DOMAIN_PLACEHOLDER"
-      http:
+    - http:
         paths:
-          - path: /
+          - path: "/"
+          #- path: "/${{ values.projectName }}-${{ values.teamIdentifier }}-${{ values.releaseStage }}"
             pathType: Prefix
             backend:
               service:
                 name: "${{ values.projectName }}-${{ values.teamIdentifier }}"
                 port:
-                  number: 80
+                  number: 8080

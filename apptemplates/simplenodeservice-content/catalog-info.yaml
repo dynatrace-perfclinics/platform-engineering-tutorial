@@ -11,15 +11,15 @@ metadata:
     'backstage.io/kubernetes-namespace': '${{ values.projectName }}-${{ values.teamIdentifier }}-${{ values.releaseStage }}-cd'
     argocd/app-name: ${{ values.projectName }}-${{ values.teamIdentifier }}-${{ values.releaseStage }}-cd
   links:
-    - url: https://gitlab.BASE_DOMAIN_PLACEHOLDER/group1/${{ values.projectName }}-${{ values.teamIdentifier }}-${{ values.releaseStage }}-cd
-      title: GitLab Repo
+    - url: https://github.com/GITHUB_REPOSITORY_PLACEHOLDER
+      title: Github Repo
       icon: github
-    - url: https://${{ values.projectName }}-${{ values.teamIdentifier }}-${{ values.releaseStage }}.BASE_DOMAIN_PLACEHOLDER
+    - url: https://${{ values.projectName }}-${{ values.teamIdentifier }}-${{ values.releaseStage }}.BASE_DOMAIN_PLACEHOLDER # TODO - when ingress is figured out
       title: "Browse Application"
       icon: subject
     - title: View in ArgoCD
       icon: catalog
-      url: https://argo.BASE_DOMAIN_PLACEHOLDER/applications/argocd/${{ values.projectName }}-${{ values.teamIdentifier }}-${{ values.releaseStage }}-cd
+      url: https://CODESPACE_NAME_PLACEHOLDER-ARGOCD_PORT_NUMBER_PLACEHOLDER.GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN_PLACEHOLDER/applications/argocd/${{ values.projectName }}-${{ values.teamIdentifier }}-${{ values.releaseStage }}-cd # TODO not replacing placeholders. Investigate.
     - title: View in Dynatrace
       icon: catalog
       url: DT_TENANT_APPS_PLACEHOLDER

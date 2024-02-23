@@ -5,23 +5,13 @@ metadata:
     argocd.argoproj.io/sync-wave: "3"
   labels:
     dt.owner: "platform_team"
-  name: nginx-ingress
+  name: ingress-nginx
   namespace: argocd
 spec:
   source:
-    repoURL: 'https://kubernetes.github.io/ingress-nginx'
-    targetRevision: 4.8.3
-    chart: ingress-nginx
-    helm:
-      values: |
-        prometheus:
-          create: true
-          port: 9113
-    #   controller:
-    #      addHeaders:
-    #         X-Forwarded-Ssl: "on"
-    #       config:
-    #         use-forwarded-headers: "true"
+    repoURL: "https://github.com/GITHUB_REPOSITORY_PLACEHOLDER.git"
+    targetRevision: main
+    path: "gitops/manifests/platform/ingress-nginx"
   destination:
     namespace: ingress-nginx
     server: 'https://kubernetes.default.svc'

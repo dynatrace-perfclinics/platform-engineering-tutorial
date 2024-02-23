@@ -9,9 +9,9 @@ metadata:
   namespace: argocd
 spec:
   source:
-    repoURL: 'FORKED_TEMPLATE_REPO_PLACEHOLDER.git'
+    repoURL: "https://github.com/GITHUB_REPOSITORY_PLACEHOLDER.git"
     targetRevision: main
-    path: "FORKED_REPO_GITOPS_CLASSROOMID_PLACEHOLDER/manifests/platform/argo-rollouts"
+    path: "gitops/manifests/platform/argo-rollouts"
   destination:
     namespace: argo-rollouts
     server: 'https://kubernetes.default.svc'

@@ -8,7 +8,7 @@ configs:
       filter: "type(SERVICE), tag([KUBERNETES]app.kubernetes.io/part-of:${{ values.projectName }}-${{ values.teamIdentifier }}),tag([KUBERNETES]dynatrace-release-stage:${{ values.releaseStage }})"
       thresholdTarget: "99.98"
       thresholdWarning: "99.99"
-    template: slo.json
+    template: slos.json
     skip: false
   type:
     api: slo
