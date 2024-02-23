@@ -71,7 +71,7 @@ At this point you should have seven pieces of information.
 
 In your fork, click the green `Code` button, change to `Codespaces`. Click the `...` and choose `New with options...`
 
-**Warning!** Do not click the green "Create codespace on demo" button!!
+**Warning!** Do not click the green "Create codespace on codespace" button!!
 
 Fill in the form and launch the codespace.
 
