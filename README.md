@@ -97,6 +97,7 @@ Get ArgoCD password:
 ARGOCDPWD=$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
 echo $ARGOCDPWD
 ```
+The username is: `admin`
 
 Change to `Ports` tab and open ArgoCD (port `30100`) & log in.
 
