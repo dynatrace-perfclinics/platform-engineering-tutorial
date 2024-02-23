@@ -8,7 +8,7 @@
 
 If you don't already have a Grail enabled Dynatrace SaaS tenant, sign up for a free trial here: [free 15 day Dynatrace trial](https://www.dynatrace.com/trial)
 
-Make a note of the Dynatrace environment name. This the the first part of the URL. `abc12345` would be the environment ID for `https://abc12345.apps.dynatrace.com`
+Make a note of the Dynatrace environment name. This is the first part of the URL. `abc12345` would be the environment ID for `https://abc12345.apps.dynatrace.com`
 
 * For those running in other environments (such as `sprint`), make a note of your environment: `dev`, `sprint` or `live`
 
