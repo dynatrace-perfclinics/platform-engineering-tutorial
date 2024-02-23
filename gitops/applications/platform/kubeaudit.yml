@@ -10,7 +10,7 @@ metadata:
 spec:
   sources:
     - repoURL: "https://github.com/GITHUB_REPOSITORY_PLACEHOLDER.git"
-      targetRevision: main
+      targetRevision: codespace
       path: "gitops/manifests/platform/kubeaudit"
   destination:
     namespace: kubeaudit

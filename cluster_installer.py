@@ -54,7 +54,7 @@ upload_dt_document_asset(sso_token_url=DT_SSO_TOKEN_URL, path="dynatraceassets/d
 upload_dt_workflow_asset(sso_token_url=DT_SSO_TOKEN_URL, path="dynatraceassets/workflows/lifecycle-events-workflow.json", name="[devrel demo] Lifecycle Events Workflow", dt_tenant_apps=DT_TENANT_APPS)
 
 # Should Keptn be installed or not?
-INSTALL_KEPTN = os.environ.get("INSTALL_KEPTN", "true")
+INSTALL_KEPTN = os.environ.get("INSTALL_KEPTN", "false")
 
 if INSTALL_KEPTN.lower() == "false" or INSTALL_KEPTN.lower() == "no":
     # Rename files to prevent installation by argoCD
