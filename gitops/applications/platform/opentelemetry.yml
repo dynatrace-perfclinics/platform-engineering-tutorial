@@ -9,9 +9,9 @@ metadata:
   namespace: argocd
 spec:
   sources:
-    - repoURL: 'FORKED_TEMPLATE_REPO_PLACEHOLDER.git'
-      targetRevision: main
-      path: "FORKED_REPO_GITOPS_CLASSROOMID_PLACEHOLDER/manifests/platform/opentelemetry"
+    - repoURL: "https://github.com/GITHUB_REPOSITORY_PLACEHOLDER.git"
+      targetRevision: codespace
+      path: "gitops/manifests/platform/opentelemetry"
     - repoURL: 'https://open-telemetry.github.io/opentelemetry-helm-charts'
       targetRevision: 0.71.0
       chart: opentelemetry-collector

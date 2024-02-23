@@ -7,9 +7,9 @@ metadata:
     dt.owner: "platform_team"
 spec:
   source:
-    path: FORKED_REPO_GITOPS_CLASSROOMID_PLACEHOLDER/applications/platform
-    repoURL: 'FORKED_TEMPLATE_REPO_PLACEHOLDER.git'
-    targetRevision: main
+    path: "gitops/applications/platform"
+    repoURL: "https://github.com/GITHUB_REPOSITORY_PLACEHOLDER.git"
+    targetRevision: codespace
   destination:
     namespace: argocd
     server: 'https://kubernetes.default.svc'

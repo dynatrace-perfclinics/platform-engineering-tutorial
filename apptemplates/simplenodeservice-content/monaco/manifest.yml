@@ -13,14 +13,14 @@ environmentGroups:
         auth:
           token:
             name: "monacoToken" 
-      - name: prod-api-and-oauth
-        url:
-          value: "DT_TENANT_APPS_PLACEHOLDER"
-        auth:
-          token:
-            name: "monacoToken"
-          oAuth:
-            clientId:
-              name: MONACO_OAUTH_CLIENT_ID
-            clientSecret:
-              name: MONACO_OAUTH_CLIENT_SECRET
+      # - name: prod-api-and-oauth
+      #   url:
+      #     value: "DT_TENANT_APPS_PLACEHOLDER"
+      #   auth:
+      #     token:
+      #       name: "monacoToken"
+      #     oAuth:
+      #       clientId:
+      #         name: MONACO_OAUTH_CLIENT_ID
+      #       clientSecret:
+      #         name: MONACO_OAUTH_CLIENT_SECRET

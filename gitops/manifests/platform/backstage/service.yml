@@ -4,9 +4,11 @@ metadata:
   name: backstage
   namespace: backstage
 spec:
+  type: NodePort
   selector:
     app: backstage
   ports:
     - name: http
-      port: 7007
-      targetPort: http
+      port: 30105
+      targetPort: 7007
+      nodePort: 30105

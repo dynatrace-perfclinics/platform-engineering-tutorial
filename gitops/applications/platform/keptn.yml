@@ -10,13 +10,38 @@ metadata:
 spec:
   sources:
     - repoURL: 'https://charts.lifecycle.keptn.sh'
-      targetRevision: 0.2.6
-      chart: klt
-      # helm:
-      #   values: |
-    - repoURL: 'FORKED_TEMPLATE_REPO_PLACEHOLDER.git'
-      targetRevision: main
-      path: "FORKED_REPO_GITOPS_CLASSROOMID_PLACEHOLDER/manifests/platform/keptn"
+      targetRevision: 0.3.0
+      chart: keptn
+      helm:
+        values: |
+          certificateOperator:
+            manager:
+              resources:
+                requests:
+                  cpu: 5m
+                  memory: 16Mi
+          lifecycleOperator:
+            manager:
+              resources:
+                requests:
+                  cpu: 5m
+                  memory: 16Mi
+          metricsOperator:
+            manager:
+              resources:
+                requests:
+                  cpu: 5m
+                  memory: 16Mi
+          scheduler:
+            scheduler:
+              resources:
+                requests:
+                  cpu: 5m
+                  memory: 16Mi
+
+    - repoURL: "https://github.com/GITHUB_REPOSITORY_PLACEHOLDER.git"
+      targetRevision: codespace
+      path: "gitops/manifests/platform/keptn"
   destination:
     namespace: keptn
     server: 'https://kubernetes.default.svc'

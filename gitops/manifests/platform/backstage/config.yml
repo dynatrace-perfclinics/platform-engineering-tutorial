@@ -7,22 +7,22 @@ data:
   app-config.production.yaml: |
     app:
       title: DT HOT Day - Backstage
-      baseUrl: https://backstage.BASE_DOMAIN_PLACEHOLDER
+      baseUrl: https://${BASE_DOMAIN}-${BACKSTAGE_PORT_NUMBER}.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}
 
     organization:
       name: DT HOT Day - Backstage
 
     backend:
-      baseUrl: https://backstage.BASE_DOMAIN_PLACEHOLDER
+      baseUrl: https://${BASE_DOMAIN}-${BACKSTAGE_PORT_NUMBER}.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}
       listen:
-        port: 7007 # TODO set the port Backstage is listening on
+        port: ${BACKSTAGE_PORT_NUMBER} # set the port Backstage is listening on: 7007
       csp:
         # Content-Security-Policy directives follow the Helmet format: https://helmetjs.github.io/#reference
         # Default Helmet Content-Security-Policy values can be removed by setting the key to false
         connect-src: ["'self'", 'http:', 'https:']
         img-src: ["'self'", "https:"]
       cors:
-        origin: https://backstage.BASE_DOMAIN_PLACEHOLDER
+        origin: https://${BASE_DOMAIN}-${BACKSTAGE_PORT_NUMBER}.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}
         methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
         credentials: true
       # If you want to use Postgres see https://backstage.io/docs/tutorials/switching-sqlite-postgres/
@@ -50,13 +50,13 @@ data:
 
     # See https://backstage.io/docs/integrations/
     integrations:
-    #   github:
-    #     - host: github.com
-    #       token: ${GITHUB_TOKEN}
-      gitlab:
-        - host: gitlab.BASE_DOMAIN_PLACEHOLDER
-          apiBaseUrl: https://gitlab.BASE_DOMAIN_PLACEHOLDER/api/v4
-          token: ${GITLAB_TOKEN}
+      github:
+        - host: github.com
+          token: ${GITHUB_TOKEN}
+      # gitlab:
+      #   - host: gitlab.BASE_DOMAIN_PLACEHOLDER
+      #     apiBaseUrl: https://gitlab.BASE_DOMAIN_PLACEHOLDER/api/v4
+      #     token: ${GITLAB_TOKEN}
     catalog:
       rules:
         - allow: [Component, Template, User, Group]
@@ -64,28 +64,32 @@ data:
         entityFilename: catalog-info.yaml
       locations: []
       providers:
-      #   # GitHub discovery: https://backstage.io/docs/integrations/github/discovery/
-      #   # Don't forget to define an integration for GitHub
-      #   github:
-      #     backstage:
-      #       organization: backstage # TODO set your organization
-      #       catalogPath: /catalog-info.yaml
-      #       schedule:
-      #         frequency: { minutes: 30 }
-      #         timeout: { minutes: 3 }
+        # GitHub discovery: https://backstage.io/docs/integrations/github/discovery/
+        # Don't forget to define an integration for GitHub
+        github:
+          backstage:
+            organization: ${GITHUB_ORG}
+            catalogPath: '**/catalog-info.yaml' # this will search recursively all folders for catalog-info.yaml files
+            filters:
+              repository: ".*${GITHUB_REPO}"
+              branch: "codespace"
+            #   repository: ".*"
+            schedule:
+              frequency: { minutes: 5 }
+              timeout: { minutes: 3 }
         # GitLab discovery: https://backstage.io/docs/integrations/gitlab/discovery/
         # Don't forget to define an integration for your GitLab host(s)
-        gitlab:
-          public:
-            host: gitlab.BASE_DOMAIN_PLACEHOLDER
-            apiBaseUrl: https://gitlab.BASE_DOMAIN_PLACEHOLDER/api/v4
-            # proxySecure: true
-            branch: main
-            skipForkedRepos: true
-            entityFilename: catalog-info.yaml
-            schedule:
-              frequency: { seconds: 10 }
-              timeout: { minutes: 1 }
+        # gitlab:
+        #   public:
+        #     host: gitlab.BASE_DOMAIN_PLACEHOLDER
+        #     apiBaseUrl: https://gitlab.BASE_DOMAIN_PLACEHOLDER/api/v4
+        #     # proxySecure: true
+        #     branch: main
+        #     skipForkedRepos: true
+        #     entityFilename: catalog-info.yaml
+        #     schedule:
+        #       frequency: { seconds: 10 }
+        #       timeout: { minutes: 1 }
               
     # See https://github.com/RoadieHQ/roadie-backstage-plugins/tree/main/plugins/backend/backstage-plugin-argo-cd-backend
     argocd:
@@ -93,7 +97,8 @@ data:
         - type: 'config'
           instances:
             - name: argocd
-              url: https://argo.BASE_DOMAIN_PLACEHOLDER
+              # eg. https://friendly-space-capybara-6vwwx95557r3q47-30100.app.github.dev
+              url: https://${BASE_DOMAIN}-ARGOCD_PORT_NUMBER_PLACEHOLDER.GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN_PLACEHOLDER
               token: ${ARGOCD_TOKEN}
               
     # See https://backstage.io/docs/features/kubernetes/configuration
@@ -128,15 +133,15 @@ data:
           method: "POST"
           headers:
             Content-Type: "application/json; charset=utf-8"
-            Authorization: "Api-Token ${DT_EVENT_INGEST_TOKEN}"
+            Authorization: "Api-Token ${DT_ALL_INGEST_TOKEN}"
     dynatrace:
       environments:
-        - name: ${DT_TENANT_NAME} # abc12345
-          url: ${DT_TENANT_APPS} # https://abc12345.sprint.apps.dynatracelabs.com
-          tokenUrl: https://sso-sprint.dynatracelabs.com/sso/oauth2/token
-          accountUrn: ${DT_ACCOUNT_URN}
-          clientId: ${DT_CLIENT_ID}
-          clientSecret: ${DT_CLIENT_SECRET}
+        - name: ${DT_TENANT_NAME}
+          url: ${DT_TENANT_APPS}
+          tokenUrl: ${DT_SSO_TOKEN_URL}
+          accountUrn: ${DT_OAUTH_ACCOUNT_URN}
+          clientId: ${DT_OAUTH_CLIENT_ID}
+          clientSecret: ${DT_OAUTH_CLIENT_SECRET}
       queries:
       - id: logs
         query: >

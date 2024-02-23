@@ -19,14 +19,14 @@ spec:
       - name: git-files
         path: /src
         git:
-          repo: FORKED_TEMPLATE_REPO_PLACEHOLDER.git
+          repo: "https://github.com/GITHUB_REPOSITORY_PLACEHOLDER.git"
     container:
       image: dynatrace/dynatrace-configuration-as-code:latest
       args: [
         "deploy",
         "--project",
         "configure-platform",
-        "/src/FORKED_REPO_GITOPS_CLASSROOMID_PLACEHOLDER/monaco/manifest.yml",
+        "/src/gitops/monaco/manifest.yml",
         "--environment",
         "prod-api-token-only"
       ]
