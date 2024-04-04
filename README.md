@@ -1,6 +1,12 @@
 # Platform Engineering with Dynatrace Tutorial
 
-** WORK IN PROGRESS ** - getting this ready for Dynatrace Perform 2024 HOT (Hands On Training) Days
+This tutorial was used for the Dynatrace Perform 2024 HOT (Hands-On Training) day sessions and re-purposed for the Regional HOTDAYs throughout 2024!
+
+If you want to **run this tutorial yourself** with **minimum setup** effort please look into our [Platform Engineering Codespace Demo](https://github.com/dynatrace-perfclinics/platform-engineering-demo)
+
+![](https://github.com/dynatrace-perfclinics/platform-engineering-demo/blob/main/images/platform-engineering-demo-overview.png?raw=true)
+
+The rest here is for the full HOTDAY setup which supports more people working in a shared Platform Engineering Setup!
 
 ## End User Hands-On Tutorials
 
